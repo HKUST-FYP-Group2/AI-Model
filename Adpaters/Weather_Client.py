@@ -21,7 +21,7 @@ class _WeatherData:
 
 
 class Fetcher(BaseFetcher):
-    def __init__(self, url: str, mode: str = "json", units: str = "metric", lang: str = "en"):
+    def __init__(self, url: str, mode: str, units: str, lang: str):
         super().__init__(url)
         self.user_pref = {"mode": mode, "units": units,
                           "lang": lang}

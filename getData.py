@@ -3,47 +3,56 @@ import dotenv
 import requests
 from Adpaters import Weather_Client, WebCam_Client
 import urllib.request
+import json
 
 
 GET_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 GET_WEBCAM_URL = "https://api.windy.com/webcams/api/v3/webcams"
 
 
-def getLinks(response: dict):
-    linkArray = []
-    for info in response["webcams"]:
-        linkArray.append(info["webcamId"])
+# def getLinks(response: dict):
+#     linkArray = []
+#     for info in response["webcams"]:
+#         linkArray.append(info["webcamId"])
 
-    return linkArray
+#     return linkArray
 
 
 def checkAndDownloadImg(response: dict):
-    linkArray = getLinks(response)
-    for webcamId in linkArray:
+    for webcamId in response:
         response = requests.get(
             f"https://api.windy.com/webcams/api/v3/webcams/{webcamId}", headers={"x-windy-api-key": os.getenv("Windy_webCam_api_key")}, params={"include": "images"})
         img_link = response.json()["images"]["current"]["preview"]
-        urllib.request.urlretrieve(img_link, f"{webcamId}.jpg")
+        a, b = urllib.request.urlretrieve(img_link, f"{webcamId}.jpg")
+
+        x = 5
 
 
 def getData(params: dict):
     openWeather_api_key = os.getenv("openWeather_api_key")
     Windy_webCam_api_key = os.getenv("Windy_webCam_api_key")
 
-    openWeatherFetcher = Weather_Client.Fetcher(GET_WEATHER_URL)
+    openWeatherFetcher = Weather_Client.Fetcher(
+        GET_WEATHER_URL, mode="json", units="metric", lang="en")
     weatherInfo, weather_status = openWeatherFetcher.fetch(
         openWeather_api_key, location=params["q"])
 
     coords = {"lat": weatherInfo.lat, "lon": weatherInfo.lon}
 
     __param = {
-        "limit": 1, "nearby": f"{coords['lat']},{coords['lon']},250", "include": "urls"}
-    response = requests.get(GET_WEBCAM_URL, params=__param, headers={
-                            "x-windy-api-key": Windy_webCam_api_key})
+        "limit": 10, "nearby": f"{coords['lat']},{coords['lon']},250", "include": "urls"}
+    # response = requests.get(GET_WEBCAM_URL, params=__param, headers={
+    #                         "x-windy-api-key": Windy_webCam_api_key})
 
-    windyFetcher = WebCam_Client.Fetcher(GET_WEBCAM_URL, limit=5, range=250.0)
+    windyFetcher = WebCam_Client.ImageLink_Fetcher(
+        GET_WEBCAM_URL, limit=5, dist_range=250.0)
     response, camera_status = windyFetcher.fetch(
         key=Windy_webCam_api_key, lat=weatherInfo.lat, lon=weatherInfo.lon)
+
+    checkAndDownloadImg(response)
+
+    with open("response.json", "w") as f:
+        json.dump(response, f)
 
 
 if __name__ == "__main__":
