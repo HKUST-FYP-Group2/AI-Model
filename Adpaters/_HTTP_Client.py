@@ -1,4 +1,5 @@
 import aiohttp
+import __init__
 from AI_logger.logger import logger
 
 

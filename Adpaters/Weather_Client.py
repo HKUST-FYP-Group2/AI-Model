@@ -1,8 +1,9 @@
 from typing import Literal
 from ._HTTP_Client import HttpClient
 from dataclasses import dataclass
-from AI_logger.logger import logger
 import asyncio
+import __init__
+from AI_logger.logger import logger
 
 
 @dataclass(frozen=True)

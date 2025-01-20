@@ -1,16 +1,15 @@
 from ._HTTP_Client import HttpClient
-from AI_logger.logger import logger
 import asyncio
-import json
+import __init__
+from AI_logger.logger import logger
 
 
 class WebCamClient(HttpClient):
-    def __init__(self, limit: int, dist_range: int, outputPath: str):
+    def __init__(self, limit: int, dist_range: int):
         super().__init__()
         self.url = "https://api.windy.com/webcams/api/v3/webcams"
         self.limit = limit
         self.dist_range = dist_range
-        self.outputPath = outputPath
 
     def _call_API(self, url: str, key: str, **param):
         _header = {"x-windy-api-key": key}
@@ -19,25 +18,22 @@ class WebCamClient(HttpClient):
         response, success = asyncio.run(super()._fetch(url, _header, param))
         return response, success
 
-    def _getImageLinks(self, key=None, lat: float = None, lon: float = None) -> list[int]:
+    def _getImageLinks(self, key=None, lat: float = None, lon: float = None):
         response, status = self._call_API(self.url, key, lat=lat, lon=lon,
                                           limit=self.limit, nearby=f"{lat},{lon},{int(self.dist_range)}", include="urls")
 
         if not status:
             return [], status
 
-        with open("webcam.json", "w") as f:
-            f.write(json.dumps(response, indent=4))
-
-        linkArray = []
+        linkArray: list[int] = []
         for info in response["webcams"]:
             linkArray.append(info["webcamId"])
 
         return linkArray, status
 
-    async def _download(self, response, id: int):
+    async def _download(self, response, id: int, outputPath: str):
         imgLink = response["images"]["current"]["preview"]
-        outputPath = f"{self.outputPath}/{id}.jpg"
+        outputPath = f"{outputPath}/{id}.jpg"
 
         logger.info(f"{__file__}: Downloading the image for {id}")
 
@@ -51,16 +47,18 @@ class WebCamClient(HttpClient):
 
             f.write(response)
 
-    def downloadImages(self, key=None, lat: float = None, lon: float = None):
-        if not lat or not lon:
-            logger.error(f"{__file__}: Please provide both lat and lon")
-            return False
+    def getImageIds(self, key=None, lat: float = None, lon: float = None):
+        if not lat or not lon or not key:
+            logger.error(f"{__file__}: Missing arguement")
+            return [], False
 
         webcamIds, success = self._getImageLinks(key, lat, lon)
+        return webcamIds, success
 
-        if not success:
-            logger.error(f"{__file__}: unable to fetch the webcamIds")
-            return False
+    def downloadImages(self, key=None, webcamIds: list[int] = None, outputPath: str = None):
+        if not webcamIds or not key or not outputPath:
+            logger.error(f"{__file__}: Missing arguement")
+            return False, 0
 
         for webcamId in webcamIds:
             downloadURL = f"{self.url}/{webcamId}"
@@ -73,6 +71,6 @@ class WebCamClient(HttpClient):
                 continue
 
             logger.info(f"{__file__}: Downloading the image for {webcamId}")
-            asyncio.run(self._download(response, webcamId))
+            asyncio.run(self._download(response, webcamId, outputPath))
 
-        return True
+        return True, len(webcamIds)

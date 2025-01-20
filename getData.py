@@ -31,7 +31,7 @@ def getData(params: dict):
     weatherInfo, weather_status = openWeatherFetcher.get_weather_info(
         openWeather_api_key, location=params["q"])
 
-    windyFetcher = WebCamClient(10, 250.0, "./dataset")
+    windyFetcher, _ = WebCamClient(10, 250.0, "./dataset")
     success = windyFetcher.downloadImages(
         key=Windy_webCam_api_key, lat=weatherInfo.lat, lon=weatherInfo.lon)
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
             raise ValueError("No OpenWeatherMap API key found in .env file")
         if os.getenv("Windy_webCam_api_key") is None:
             raise ValueError("No Windy.com API key found in .env file")
-        getData({"q": "China"})
+        getData({"q": "Hong Kong"})
     else:
         raise FileNotFoundError(
             "No .env file found, create your own for OpenWeatherMap API key and Windy.com API key (Webcam API)")
