@@ -44,15 +44,18 @@ class Fetcher(BaseFetcher):
     def fetch(self, key: str, location: str = None, lat: float = None, lon: float = None) -> tuple[_WeatherData, Literal[False]] | tuple[_WeatherData, Literal[True]]:
         if location and (lat or lon):
             logger.error(
-                "Please provide either location or lat and lon, not both")
+                f"{__file__}: Please provide either location or lat and lon, not both")
+
             return _WeatherData(), False
         if not location and (not lat or not lon):
             logger.error(
-                "Please provide either location or lat and lon, not both")
+                f"{__file__}: Please provide either location or lat and lon, not both")
+
             return _WeatherData(), False
 
         infoDict = {location: "location", lat: "lat", lon: "lon"}
-        logger.info(f"Calling the api {self.url}, passed params {infoDict}")
+        logger.info(
+            f"{__file__}: Calling the api {self.url}, passed params {infoDict}")
 
         _param = {"appid": key}
         if location:

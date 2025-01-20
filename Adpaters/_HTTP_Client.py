@@ -11,8 +11,9 @@ class BaseFetcher:
             async with session.get(self.url, params=param, headers=header) as response:
                 if response.status == 200:
                     logger.info(
-                        f"Response from {self.url} is {response.status}")
+                        f"{__file__}: Response from {self.url} is {response.status}")
                     return await response.json(), True
                 else:
-                    logger.error(f"Error {response.status}: {response.reason}")
+                    logger.error(
+                        f"{__file__}: Error {response.status}: {response.reason}")
                     return {}, False

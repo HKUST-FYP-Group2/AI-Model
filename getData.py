@@ -1,7 +1,7 @@
 import os
 import dotenv
 import requests
-from Adpaters import Weather_Client
+from Adpaters import Weather_Client, WebCam_Client
 import urllib.request
 
 
@@ -31,7 +31,7 @@ def getData(params: dict):
     Windy_webCam_api_key = os.getenv("Windy_webCam_api_key")
 
     openWeatherFetcher = Weather_Client.Fetcher(GET_WEATHER_URL)
-    weatherInfo, status = openWeatherFetcher.fetch(
+    weatherInfo, weather_status = openWeatherFetcher.fetch(
         openWeather_api_key, location=params["q"])
 
     coords = {"lat": weatherInfo.lat, "lon": weatherInfo.lon}
@@ -40,7 +40,10 @@ def getData(params: dict):
         "limit": 1, "nearby": f"{coords['lat']},{coords['lon']},250", "include": "urls"}
     response = requests.get(GET_WEBCAM_URL, params=__param, headers={
                             "x-windy-api-key": Windy_webCam_api_key})
-    checkAndDownloadImg(response.json())
+
+    windyFetcher = WebCam_Client.Fetcher(GET_WEBCAM_URL, limit=5, range=250.0)
+    response, camera_status = windyFetcher.fetch(
+        key=Windy_webCam_api_key, lat=weatherInfo.lat, lon=weatherInfo.lon)
 
 
 if __name__ == "__main__":
@@ -50,7 +53,7 @@ if __name__ == "__main__":
             raise ValueError("No OpenWeatherMap API key found in .env file")
         if os.getenv("Windy_webCam_api_key") is None:
             raise ValueError("No Windy.com API key found in .env file")
-        getData({"q": "Delhi"})
+        getData({"q": "Sydney"})
     else:
         raise FileNotFoundError(
             "No .env file found, create your own for OpenWeatherMap API key and Windy.com API key (Webcam API)")
