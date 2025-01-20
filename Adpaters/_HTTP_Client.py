@@ -2,17 +2,20 @@ import aiohttp
 from AI_logger.logger import logger
 
 
-class BaseFetcher:
-    def __init__(self, url: str):
-        self.url: str = url
+class HttpClient:
+    async def _fetch(self, url: str, header: dict = None, param: dict = None, return_json: bool = True):
+        return await self._callRemoteServer(url, header, param, return_json)
 
-    async def _fetch(self, header: dict = None, param: dict = None):
+    async def _callRemoteServer(self, url: str, header: dict = None, param: dict = None, return_json: bool = True):
         async with aiohttp.ClientSession() as session:
-            async with session.get(self.url, params=param, headers=header) as response:
+            async with session.get(url, params=param, headers=header) as response:
                 if response.status == 200:
                     logger.info(
-                        f"{__file__}: Response from {self.url} is {response.status}")
-                    return await response.json(), True
+                        f"{__file__}: Response from {url} is {response.status}")
+                    if return_json:
+                        return await response.json(), True
+                    else:
+                        return await response.read(), True
                 else:
                     logger.error(
                         f"{__file__}: Error {response.status}: {response.reason}")

@@ -1,12 +1,12 @@
 from typing import Literal
-from ._HTTP_Client import BaseFetcher
+from ._HTTP_Client import HttpClient
 from dataclasses import dataclass
 from AI_logger.logger import logger
 import asyncio
 
 
 @dataclass(frozen=True)
-class _WeatherData:
+class WeatherData:
     temperature: float = None
     humidity: float = None
     wind_speed: float = None
@@ -20,13 +20,14 @@ class _WeatherData:
     lon: float = None
 
 
-class Fetcher(BaseFetcher):
-    def __init__(self, url: str, mode: str, units: str, lang: str):
-        super().__init__(url)
+class WeatherClient(HttpClient):
+    def __init__(self, mode: str, units: str, lang: str):
+        super().__init__()
+        self.url = "https://api.openweathermap.org/data/2.5/weather"
         self.user_pref = {"mode": mode, "units": units,
                           "lang": lang}
 
-    def getRelevantData(self, weatherData: dict) -> _WeatherData:
+    def _constructWeatherData(self, weatherData: dict) -> WeatherData:
         temperature = float(weatherData["main"]["temp"])
         humidity = float(weatherData["main"]["humidity"])
         wind_speed = float(weatherData["wind"]["speed"])
@@ -38,25 +39,35 @@ class Fetcher(BaseFetcher):
         snow_1h = float(weatherData.get("snow", {}).get("1h", 0.0))
         lat = float(weatherData["coord"]["lat"])
         lon = float(weatherData["coord"]["lon"])
-        return _WeatherData(temperature, humidity, wind_speed, cloud_cover,
-                            current_time, visibility, gust, rain_1h, snow_1h, lat, lon)
+        return WeatherData(temperature, humidity, wind_speed, cloud_cover,
+                           current_time, visibility, gust, rain_1h, snow_1h, lat, lon)
 
-    def fetch(self, key: str, location: str = None, lat: float = None, lon: float = None) -> tuple[_WeatherData, Literal[False]] | tuple[_WeatherData, Literal[True]]:
+    def get_weather_info(self, key: str, location: str = None, lat: float = None, lon: float = None) -> tuple[WeatherData, Literal[False]] | tuple[WeatherData, Literal[True]]:
         if location and (lat or lon):
             logger.error(
                 f"{__file__}: Please provide either location or lat and lon, not both")
+            return WeatherData(), False
 
-            return _WeatherData(), False
         if not location and (not lat or not lon):
             logger.error(
                 f"{__file__}: Please provide either location or lat and lon, not both")
+            return WeatherData(), False
 
-            return _WeatherData(), False
-
-        infoDict = {location: "location", lat: "lat", lon: "lon"}
         logger.info(
-            f"{__file__}: Calling the api {self.url}, passed params {infoDict}")
+            f"{__file__}: Calling the api {self.url}, passed params {{'location': {location}, 'lat': {lat}, 'lon': {lon}}}")
 
+        _param = self._createParamDict(key, location, lat, lon)
+        fetch_result = asyncio.run(super()._fetch(url=self.url, param=_param))
+        if fetch_result is None:
+            return WeatherData(), False
+        response, success = fetch_result
+
+        if not success:
+            return WeatherData(), success
+
+        return self._constructWeatherData(response), success
+
+    def _createParamDict(self, key, location, lat, lon):
         _param = {"appid": key}
         if location:
             _param["q"] = location
@@ -64,9 +75,4 @@ class Fetcher(BaseFetcher):
             _param["lat"] = lat
             _param["lon"] = lon
         _param.update(self.user_pref)
-
-        response, status = asyncio.run(super()._fetch(param=_param))
-
-        if not status:
-            return _WeatherData(), status
-        return self.getRelevantData(response), status
+        return _param
