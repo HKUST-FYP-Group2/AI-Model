@@ -1,6 +1,5 @@
 from ._HTTP_Client import HttpClient
 import asyncio
-import __init__
 import os
 from AI_logger.logger import logger
 

@@ -1,5 +1,4 @@
 import json
-from __init__ import *
 import ijson
 from AI_logger.logger import logger
 from Adpaters.WebCam_Client import WebCamClient
@@ -27,14 +26,14 @@ class CreateDataset():
     def _writeData(self, f, info: dict):
         json.dump(info, f)
 
-    def downloadDataset(self, key: str):
+    def downloadDataset(self, openWeatherKey: str, WindyKey: str):
         f = open(f"{self.outputPath}/dataset.json", "w")
         for id, city in self._getCities():
             logger.info(f"{__file__}: Creating dataset for {city}")
             logger.info(f"{__file__}: Fetching weather info for {city}")
 
             weatherInfo, weather_status = self.openWeatherFetcher.get_weather_info(
-                os.getenv("openWeather_api_key"), location=city)
+                openWeatherKey, location=city)
 
             if not weather_status:
                 logger.error(
@@ -42,7 +41,7 @@ class CreateDataset():
                 continue
 
             webCamIds, success = self.webCamFetcher.getImageIds(
-                key=key, lat=weatherInfo.lat, lon=weatherInfo.lon)
+                key=WindyKey, lat=weatherInfo.lat, lon=weatherInfo.lon)
 
             if not success:
                 logger.error(
@@ -50,7 +49,7 @@ class CreateDataset():
                 continue
 
             success, count = self.webCamFetcher.downloadImages(
-                key=key,  webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/city_{id}")
+                key=WindyKey,  webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/city_{id}")
 
             if not success:
                 logger.error(
@@ -65,6 +64,3 @@ class CreateDataset():
 
             sleep(1)
         f.close()
-
-
-CreateDataset().downloadDataset()

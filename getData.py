@@ -4,6 +4,7 @@ import requests
 from Adpaters.Weather_Client import WeatherClient
 from Adpaters.WebCam_Client import WebCamClient
 import urllib.request
+from dataset.Create_Dataset import CreateDataset
 
 
 GET_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
@@ -34,6 +35,12 @@ def getData(params: dict):
         key=Windy_webCam_api_key, lat=weatherInfo.lat, lon=weatherInfo.lon)
 
 
+def createDataset():
+    Manager = CreateDataset()
+    Manager.downloadDataset(os.getenv("openWeather_api_key"),
+                            os.getenv("Windy_webCam_api_key"))
+
+
 if __name__ == "__main__":
     if os.path.exists(".env"):
         dotenv.load_dotenv()
@@ -41,7 +48,7 @@ if __name__ == "__main__":
             raise ValueError("No OpenWeatherMap API key found in .env file")
         if os.getenv("Windy_webCam_api_key") is None:
             raise ValueError("No Windy.com API key found in .env file")
-        getData({"q": "Hong Kong"})
+        createDataset()
     else:
         raise FileNotFoundError(
             "No .env file found, create your own for OpenWeatherMap API key and Windy.com API key (Webcam API)")
