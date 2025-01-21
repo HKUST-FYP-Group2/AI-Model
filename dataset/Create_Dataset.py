@@ -21,7 +21,6 @@ class CreateDataset():
 
     def _getCities(self):
         with open(self.regionsToCoverPath, "r") as f:
-            count = 0
             for city in ijson.items(f, "item"):
                 yield city["id"], fix_text(city["name"])
 
@@ -57,6 +56,11 @@ class CreateDataset():
             f"{__file__}: Dataset for {city} created successfully")
         writeDict = weatherInfo.__dict__.copy()
 
+        if count == 0:
+            logger.warning(
+                f"{__file__}: No webcam images found for {city}")
+            return None
+
         return writeDict
 
     def downloadDataset(self, openWeatherKey: str, WindyKey: str):
@@ -69,12 +73,14 @@ class CreateDataset():
             if infoDict is None:
                 continue
 
-            first = False
-            f.write(f'"{id}":')
-            json.dump(infoDict, f, cls=JSONStreamEncoder)
             if not first:
                 f.write(",")
+            f.write(f'"{id}":')
+            json.dump(infoDict, f, cls=JSONStreamEncoder)
             f.write("\n")
+
+            first = False
 
             sleep(0.1)
         f.write("}")  # End of JSON array
+        f.close()
