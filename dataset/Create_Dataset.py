@@ -1,8 +1,8 @@
 import json
 import ijson
 from AI_logger.logger import logger
-from Adpaters.WebCam_Client import WebCamClient
-from Adpaters.Weather_Client import WeatherClient
+from Adapters.WebCam_Client import WebCamClient
+from Adapters.Weather_Client import WeatherClient
 from time import sleep
 import ftfy
 

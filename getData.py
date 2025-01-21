@@ -1,8 +1,8 @@
 import os
 import dotenv
 import requests
-from Adpaters.Weather_Client import WeatherClient
-from Adpaters.WebCam_Client import WebCamClient
+from Adapters.Weather_Client import WeatherClient
+from Adapters.WebCam_Client import WebCamClient
 import urllib.request
 from dataset.Create_Dataset import CreateDataset
 
