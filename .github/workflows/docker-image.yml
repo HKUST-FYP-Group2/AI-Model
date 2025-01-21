@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: hvgupta01/FYP_CNN
+  IMAGE_NAME: hvgupta01/fyp_cnn
 
 jobs:
   build-and-push-image:
