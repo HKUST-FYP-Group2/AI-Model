@@ -9,7 +9,7 @@ from json_stream.dump import JSONStreamEncoder, default
 
 
 class CreateDataset():
-    def __init__(self, mode: str = "json", units: str = "metric", lang: str = "en",
+    def __init__(self, mode: str = "json", units: str = "standard", lang: str = "en",
                  limit: int = 2, dist_range: int = 250.0,
                  outputPath: str = "./dataset",
                  regionsToCoverPath: str = "./cities500.json"):
