@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: your-dockerhub-username/your-image-name
+  IMAGE_NAME: hvgupta01/FYP_CNN
 
 jobs:
   build-and-push-image:
