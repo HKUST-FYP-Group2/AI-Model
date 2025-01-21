@@ -4,7 +4,8 @@ from AI_logger.logger import logger
 from Adapters.WebCam_Client import WebCamClient
 from Adapters.Weather_Client import WeatherClient
 from time import sleep
-import ftfy
+from ftfy import fix_text
+from json_stream.dump import JSONStreamEncoder, default
 
 
 class CreateDataset():
@@ -20,8 +21,9 @@ class CreateDataset():
 
     def _getCities(self):
         with open(self.regionsToCoverPath, "r") as f:
+            count = 0
             for city in ijson.items(f, "item"):
-                yield city["id"], ftfy.fix_text(city["name"])
+                yield city["id"], fix_text(city["name"])
 
     def _downloadInstance(self, openWeatherKey: str, WindyKey: str, id: int, city: str):
         logger.info(f"{__file__}: Creating dataset for {city}")
@@ -33,7 +35,7 @@ class CreateDataset():
         if not weather_status:
             logger.error(
                 f"{__file__}: Error in fetching weather info for {city}")
-            yield None
+            return None
 
         webCamIds, success = self.webCamFetcher.getImageIds(
             key=WindyKey, lat=weatherInfo.lat, lon=weatherInfo.lon)
@@ -41,33 +43,38 @@ class CreateDataset():
         if not success:
             logger.error(
                 f"{__file__}: Error in fetching webcam ids for {city}")
-            yield None
+            return None
 
         success, count = self.webCamFetcher.downloadImages(
-            key=WindyKey, webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/city_{id}")
+            key=WindyKey, webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/{id}")
 
         if not success:
             logger.error(
                 f"{__file__}: Error in fetching webcam images for {city}")
-            yield None
+            return None
 
         logger.info(
             f"{__file__}: Dataset for {city} created successfully")
         writeDict = weatherInfo.__dict__.copy()
-        writeDict.update({"image_id": webCamIds})
 
-        yield writeDict
-        sleep(0.1)
+        return writeDict
 
     def downloadDataset(self, openWeatherKey: str, WindyKey: str):
-        with open(f"{self.outputPath}/dataset.json", "w") as f:
-            f.write("[")  # Start of JSON array
-            first = True
-            for id, city in self._getCities():
-                for infoDict in self._downloadInstance(openWeatherKey, WindyKey, id, city):
-                    if infoDict is not None:
-                        if not first:
-                            f.write(",")  # Add comma between JSON objects
-                        json.dump({id: infoDict}, f)
-                        first = False
-            f.write("]")  # End of JSON array
+        f = open(f"{self.outputPath}/dataset.json", "w", buffering=1)
+        f.write("{")  # Start of JSON array
+        first = True
+        for id, city in self._getCities():
+            infoDict = self._downloadInstance(
+                openWeatherKey, WindyKey, id, city)
+            if infoDict is None:
+                continue
+
+            first = False
+            f.write(f'"{id}":')
+            json.dump(infoDict, f, cls=JSONStreamEncoder)
+            if not first:
+                f.write(",")
+            f.write("\n")
+
+            sleep(0.1)
+        f.write("}")  # End of JSON array
