@@ -1,14 +1,16 @@
-import ijson.dump
+import json
 from __init__ import *
 import ijson
 from AI_logger.logger import logger
 from Adpaters.WebCam_Client import WebCamClient
 from Adpaters.Weather_Client import WeatherClient
+from time import sleep
+import ftfy
 
 
 class CreateDataset():
     def __init__(self, mode: str = "json", units: str = "metric", lang: str = "en",
-                 limit: int = 5, dist_range: int = 250.0,
+                 limit: int = 2, dist_range: int = 250.0,
                  outputPath: str = "./dataset",
                  regionsToCoverPath: str = "./cities500.json"):
         self.openWeatherFetcher = WeatherClient(
@@ -20,12 +22,12 @@ class CreateDataset():
     def _getCities(self):
         with open(self.regionsToCoverPath, "r") as f:
             for city in ijson.items(f, "item"):
-                yield city["id"], city["name"]
+                yield city["id"], ftfy.fix_text(city["name"])
 
     def _writeData(self, f, info: dict):
-        f.write(ijson.dumps(info))
+        json.dump(info, f)
 
-    def downloadDataset(self):
+    def downloadDataset(self, key: str):
         f = open(f"{self.outputPath}/dataset.json", "w")
         for id, city in self._getCities():
             logger.info(f"{__file__}: Creating dataset for {city}")
@@ -40,7 +42,7 @@ class CreateDataset():
                 continue
 
             webCamIds, success = self.webCamFetcher.getImageIds(
-                key=os.getenv("Windy_webCam_api_key"), lat=weatherInfo.lat, lon=weatherInfo.lon)
+                key=key, lat=weatherInfo.lat, lon=weatherInfo.lon)
 
             if not success:
                 logger.error(
@@ -48,7 +50,7 @@ class CreateDataset():
                 continue
 
             success, count = self.webCamFetcher.downloadImages(
-                key=os.getenv("Windy_webCam_api_key"),  webcamIds=webCamIds, outputPath=f"{self.outputPath}/{id}")
+                key=key,  webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/city_{id}")
 
             if not success:
                 logger.error(
@@ -60,6 +62,9 @@ class CreateDataset():
                 {"city_id": id, "image_id": webCamIds})
             if count > 0:
                 self._writeData(f, writeDict)
+
+            sleep(1)
+        f.close()
 
 
 CreateDataset().downloadDataset()

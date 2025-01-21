@@ -1,11 +1,9 @@
 import os
 import dotenv
 import requests
-from Adpaters import Weather_Client, WebCam_Client
 from Adpaters.Weather_Client import WeatherClient
 from Adpaters.WebCam_Client import WebCamClient
 import urllib.request
-import json
 
 
 GET_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"

@@ -29,17 +29,17 @@ class WeatherClient(HttpClient):
                           "lang": lang}
 
     def _constructWeatherData(self, weatherData: dict) -> WeatherData:
-        temperature = float(weatherData["main"]["temp"])
-        humidity = float(weatherData["main"]["humidity"])
-        wind_speed = float(weatherData["wind"]["speed"])
-        cloud_cover = float(weatherData["clouds"]["all"])
-        current_time = int(weatherData["dt"])
-        visibility = int(weatherData["visibility"])
-        gust = float(weatherData.get("wind", {}).get("gust", 0.0))
-        rain_1h = float(weatherData.get("rain", {}).get("1h", 0.0))
-        snow_1h = float(weatherData.get("snow", {}).get("1h", 0.0))
-        lat = float(weatherData["coord"]["lat"])
-        lon = float(weatherData["coord"]["lon"])
+        temperature = weatherData.get("main", {}).get("temp", None)
+        humidity = weatherData.get("main", {}).get("humidity", None)
+        wind_speed = weatherData.get("wind", {}).get("speed", None)
+        cloud_cover = weatherData.get("clouds", {}).get("all", None)
+        current_time = weatherData.get("dt", None)
+        visibility = weatherData.get("visibility", None)
+        gust = weatherData.get("wind", {}).get("gust", None)
+        rain_1h = weatherData.get("rain", {}).get("1h", None)
+        snow_1h = weatherData.get("snow", {}).get("1h", None)
+        lat = weatherData.get("coord", {}).get("lat", None)
+        lon = weatherData.get("coord", {}).get("lon", None)
         return WeatherData(temperature, humidity, wind_speed, cloud_cover,
                            current_time, visibility, gust, rain_1h, snow_1h, lat, lon)
 

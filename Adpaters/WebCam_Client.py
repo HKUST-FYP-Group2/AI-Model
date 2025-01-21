@@ -1,6 +1,7 @@
 from ._HTTP_Client import HttpClient
 import asyncio
 import __init__
+import os
 from AI_logger.logger import logger
 
 
@@ -34,6 +35,7 @@ class WebCamClient(HttpClient):
     async def _download(self, response, id: int, outputPath: str):
         imgLink = response["images"]["current"]["preview"]
         outputPath = f"{outputPath}/{id}.jpg"
+        os.makedirs(os.path.dirname(outputPath), exist_ok=True)
 
         logger.info(f"{__file__}: Downloading the image for {id}")
 
