@@ -32,6 +32,8 @@ class WeatherClient(HttpClient):
                           "lang": lang}
 
     def _calcLocalTime(self, unixTime: int, offset: int) -> int:
+        if unixTime is None or offset is None:
+            return None
         localTime = unixTime + offset
         hours = localTime // 3600 % 24
         minutes = (localTime % 3600) // 60
@@ -47,8 +49,8 @@ class WeatherClient(HttpClient):
             weatherData.get("dt", None), weatherData.get("timezone", None))
         visibility = weatherData.get("visibility", None)
         gust = weatherData.get("wind", {}).get("gust", None)
-        rain_1h = weatherData.get("rain", {}).get("1h", None)
-        snow_1h = weatherData.get("snow", {}).get("1h", None)
+        rain_1h = weatherData.get("rain", {}).get("1h", 0)
+        snow_1h = weatherData.get("snow", {}).get("1h", 0)
         lat = weatherData.get("coord", {}).get("lat", None)
         lon = weatherData.get("coord", {}).get("lon", None)
         return WeatherData(temperature, humidity, wind_speed, cloud_cover,

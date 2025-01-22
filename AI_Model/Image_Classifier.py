@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import MSELoss, L1Loss, HuberLoss
 
 
 class SEBlock(nn.modules):
@@ -92,3 +93,27 @@ class FYP_CNN(nn.Module):
         info_out = self.NumericInformationPreprocessing(info)
         combined = torch.cat((image_out, info_out), 1)
         return self.Combine(combined)
+
+
+class LossFunction(nn.Module):
+    def __init__(self, importance: list = [1, 1, 1, 1, 1, 1, 1, 1]):
+        super(LossFunction, self).__init__()
+        importance = torch.tensor(importance)
+        self.MSE_Mask = torch.tensor([1, 0, 0, 1, 1, 1, 0, 0]) * importance
+        self.MAE_Mask = torch.tensor([0, 1, 0, 0, 0, 0, 1, 1]) * importance
+        self.Huber_Mask = torch.tensor([0, 0, 1, 0, 0, 0, 0, 0]) * importance
+        self._MSEFunction = MSELoss()
+        self._MAEFunction = L1Loss()
+        self._HuberFunction = HuberLoss()
+
+    def _MSE(self, output, target):
+        return self._MSEFunction(output, target) * self.MSE_Mask
+
+    def _MAE(self, output, target):
+        return self._MAEFunction(output, target) * self.MAE_Mask
+
+    def _Huber(self, output, target):
+        return self._HuberFunction(output, target) * self.Huber_Mask
+
+    def forward(self, output, target):
+        return self._MSE(output, target) + self._MAE(output, target) + self._Huber(output, target)
