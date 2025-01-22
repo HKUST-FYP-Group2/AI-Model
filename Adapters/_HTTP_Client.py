@@ -1,4 +1,4 @@
-from AI_logger.logger import logger
+from Logger.Logger import logger
 import aiohttp
 
 
