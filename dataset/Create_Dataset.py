@@ -1,11 +1,10 @@
-import json
+import csv
 import ijson
 from AI_logger.logger import logger
 from Adapters.WebCam_Client import WebCamClient
-from Adapters.Weather_Client import WeatherClient
+from Adapters.Weather_Client import WeatherClient, WeatherData
 from time import sleep
 from ftfy import fix_text
-from json_stream.dump import JSONStreamEncoder, default
 
 
 class CreateDataset():
@@ -64,23 +63,18 @@ class CreateDataset():
         return writeDict
 
     def downloadDataset(self, openWeatherKey: str, WindyKey: str):
-        f = open(f"{self.outputPath}/dataset.json", "w", buffering=1)
-        f.write("{")  # Start of JSON array
-        first = True
-        for id, city in self._getCities():
-            infoDict = self._downloadInstance(
-                openWeatherKey, WindyKey, id, city)
-            if infoDict is None:
-                continue
+        with open(f"{self.outputPath}/dataset.csv", "w", newline='') as csvfile:
+            fieldnames = ["id"] + WeatherData().getNames
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
 
-            if not first:
-                f.write(",")
-            f.write(f'"{id}":')
-            json.dump(infoDict, f, cls=JSONStreamEncoder)
-            f.write("\n")
+            for id, city in self._getCities():
+                infoDict = self._downloadInstance(
+                    openWeatherKey, WindyKey, id, city)
+                if infoDict is None:
+                    continue
 
-            first = False
-
-            sleep(0.1)
-        f.write("}")  # End of JSON array
-        f.close()
+                writer.writerow(
+                    {'id': id, **infoDict})
+                csvfile.flush()
+                sleep(0.1)

@@ -174,4 +174,4 @@ test*
 
 *.jpg
 cities*
-dataset.json
+dataset.*

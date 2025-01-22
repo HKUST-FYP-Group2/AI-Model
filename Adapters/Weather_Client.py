@@ -19,6 +19,10 @@ class WeatherData:
     lat: float = None
     lon: float = None
 
+    @property
+    def getNames(self):
+        return list(self.__annotations__.keys())
+
 
 class WeatherClient(HttpClient):
     def __init__(self, mode: str, units: str, lang: str):
