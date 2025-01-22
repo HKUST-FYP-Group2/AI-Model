@@ -11,7 +11,7 @@ class WeatherData:
     humidity: float = None
     wind_speed: float = None
     cloud_cover: float = None
-    current_time: int = None
+    local_time: int = None
     visibility: int = None
     gust: float = None
     rain_1h: float = None
@@ -31,12 +31,20 @@ class WeatherClient(HttpClient):
         self.user_pref = {"mode": mode, "units": units,
                           "lang": lang}
 
+    def _calcLocalTime(self, unixTime: int, offset: int) -> int:
+        localTime = unixTime + offset
+        hours = localTime // 3600 % 24
+        minutes = (localTime % 3600) // 60
+        seconds = localTime % 60
+        return hours * 3600 + minutes * 60 + seconds
+
     def _constructWeatherData(self, weatherData: dict) -> WeatherData:
         temperature = weatherData.get("main", {}).get("temp", None)
         humidity = weatherData.get("main", {}).get("humidity", None)
         wind_speed = weatherData.get("wind", {}).get("speed", None)
         cloud_cover = weatherData.get("clouds", {}).get("all", None)
-        current_time = weatherData.get("dt", None)
+        local_time = self._calcLocalTime(
+            weatherData.get("dt", None), weatherData.get("timezone", None))
         visibility = weatherData.get("visibility", None)
         gust = weatherData.get("wind", {}).get("gust", None)
         rain_1h = weatherData.get("rain", {}).get("1h", None)
@@ -44,7 +52,7 @@ class WeatherClient(HttpClient):
         lat = weatherData.get("coord", {}).get("lat", None)
         lon = weatherData.get("coord", {}).get("lon", None)
         return WeatherData(temperature, humidity, wind_speed, cloud_cover,
-                           current_time, visibility, gust, rain_1h, snow_1h, lat, lon)
+                           local_time, visibility, gust, rain_1h, snow_1h, lat, lon)
 
     def get_weather_info(self, key: str, location: str = None, lat: float = None, lon: float = None) -> tuple[WeatherData, Literal[False]] | tuple[WeatherData, Literal[True]]:
         if location and (lat or lon):

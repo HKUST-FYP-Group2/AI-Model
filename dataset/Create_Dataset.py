@@ -5,16 +5,19 @@ from Adapters.WebCam_Client import WebCamClient
 from Adapters.Weather_Client import WeatherClient, WeatherData
 from time import sleep
 from ftfy import fix_text
+from PIL import Image
 
 
 class CreateDataset():
     def __init__(self, mode: str = "json", units: str = "standard", lang: str = "en",
                  limit: int = 2, dist_range: int = 250.0,
                  outputPath: str = "./dataset",
+                 imageTargetSize: tuple[int, int] = (256, 256),
                  regionsToCoverPath: str = "./cities500.json"):
         self.openWeatherFetcher = WeatherClient(
             mode=mode, units=units, lang=lang)
-        self.webCamFetcher = WebCamClient(limit=limit, dist_range=dist_range)
+        self.webCamFetcher = WebCamClient(
+            limit=limit, dist_range=dist_range, outputImageSize=imageTargetSize)
         self.outputPath = outputPath
         self.regionsToCoverPath = regionsToCoverPath
 

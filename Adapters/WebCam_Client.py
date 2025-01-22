@@ -2,14 +2,17 @@ from ._HTTP_Client import HttpClient
 import asyncio
 import os
 from AI_logger.logger import logger
+from PIL import Image
+from io import BytesIO
 
 
 class WebCamClient(HttpClient):
-    def __init__(self, limit: int, dist_range: int):
+    def __init__(self, limit: int, dist_range: int, outputImageSize: tuple[int, int]):
         super().__init__()
         self.url = "https://api.windy.com/webcams/api/v3/webcams"
         self.limit = limit
         self.dist_range = dist_range
+        self.outputImageSize = outputImageSize
 
     def _call_API(self, url: str, key: str, **param):
         _header = {"x-windy-api-key": key}
@@ -19,6 +22,7 @@ class WebCamClient(HttpClient):
         return response, success
 
     def _getImageLinks(self, key=None, lat: float = None, lon: float = None):
+
         response, status = self._call_API(self.url, key, lat=lat, lon=lon,
                                           limit=self.limit, nearby=f"{lat},{lon},{int(self.dist_range)}", include="urls")
 
@@ -46,7 +50,12 @@ class WebCamClient(HttpClient):
                     f"{__file__}: Error in downloading the image for {id}")
                 return
 
-            f.write(response)
+            # Resize the image
+            image = Image.open(BytesIO(response))
+            resized_image = image.resize(self.outputImageSize)
+
+            # Save the resized image
+            resized_image.save(outputPath)
 
     def getImageIds(self, key=None, lat: float = None, lon: float = None):
         if not lat or not lon or not key:
