@@ -84,7 +84,7 @@ class CreateDataset():
                 csvfile.flush()
                 sleep(0.1)
                 
-class DataLoader:
+class DatasetProcessor:
     def __init__(self,datasetRootPATH:str, transformer:callable):
         self.root = datasetRootPATH
         self.dataset = pd.read_csv(f"{datasetRootPATH}/dataset.csv",header=None)
@@ -94,20 +94,23 @@ class DataLoader:
     def shape(self):
         return self.dataset.shape
     
+    def __len__(self):
+        return len(self.dataset)
+    
     def __getitem__(self,idx):
         row = self.dataset.iloc[idx]
-        image_index = row["id"]
+        image_index = row[0]
         
-        X = row.loc[["local_time","lat","lon"]]
-        Y:pd.Series = row.loc[["temperature","humidity","wind_speed","cloud_cover","visibility","gust","rain_1h","snow_1h"]]
+        X = row.loc[[5,10,11]].astype(float)
+        Y= row.loc[[1,2,3,4,6,7,8,9]].astype(float)
         
         image_path = f"{self.root}/images/{image_index}/"
         img_store = []
         for img in os.listdir(image_path):
-            image = Image.open(f"{image_path}/{img}")
+            image = Image.open(f"{image_path}{img}")
             image = self.transformer(image)
             img_store.append(image)
         
         image_tensor = torch.stack(img_store)
         
-        return image_tensor, X, Y
+        return image_tensor, torch.tensor(X.values), torch.tensor(Y.values)
