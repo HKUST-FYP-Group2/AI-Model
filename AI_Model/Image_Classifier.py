@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import MSELoss, L1Loss, HuberLoss
 
 
-class SEBlock(nn.modules):
+class SEBlock(nn.Module):
     def __init__(self, input_channel_dim, reduction_ratio, output_channel_dim):
         super(SEBlock, self).__init__()
         self.model = nn.Sequential(

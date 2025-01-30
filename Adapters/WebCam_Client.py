@@ -2,8 +2,6 @@ from ._HTTP_Client import HttpClient
 import asyncio
 import os
 from Logger.Logger import logger
-from PIL import Image
-from io import BytesIO
 
 
 class WebCamClient(HttpClient):
@@ -50,12 +48,7 @@ class WebCamClient(HttpClient):
                     f"{__file__}: Error in downloading the image for {id}")
                 return
 
-            # Resize the image
-            image = Image.open(BytesIO(response))
-            resized_image = image.resize(self.outputImageSize)
-
-            # Save the resized image
-            resized_image.save(outputPath)
+            f.write(response)
 
     def getImageIds(self, key=None, lat: float = None, lon: float = None):
         if not lat or not lon or not key:

@@ -41,18 +41,26 @@ class WeatherClient(HttpClient):
         return hours * 3600 + minutes * 60 + seconds
 
     def _constructWeatherData(self, weatherData: dict) -> WeatherData:
-        temperature = weatherData.get("main", {}).get("temp", None)
-        humidity = weatherData.get("main", {}).get("humidity", None)
-        wind_speed = weatherData.get("wind", {}).get("speed", None)
-        cloud_cover = weatherData.get("clouds", {}).get("all", None)
+        temperature = weatherData.get("main", {}).get("temp", None) # either weatherData["main"]["temp"] or None   
+        humidity = weatherData.get("main", {}).get("humidity", None) # either weatherData["main"]["humidity"] or None
+        
+        wind_speed = weatherData.get("wind", {}).get("speed", None) # either weatherData["wind"]["speed"] or None
+        gust = weatherData.get("wind", {}).get("gust", 0) # either weatherData["wind"]["gust"] or 0
+        
+        cloud_cover = weatherData.get("clouds", {}).get("all", None) # either weatherData["clouds"]["all"] or None
+        
         local_time = self._calcLocalTime(
-            weatherData.get("dt", None), weatherData.get("timezone", None))
-        visibility = weatherData.get("visibility", None)
-        gust = weatherData.get("wind", {}).get("gust", None)
-        rain_1h = weatherData.get("rain", {}).get("1h", 0)
-        snow_1h = weatherData.get("snow", {}).get("1h", 0)
-        lat = weatherData.get("coord", {}).get("lat", None)
-        lon = weatherData.get("coord", {}).get("lon", None)
+            weatherData.get("dt", None), weatherData.get("timezone", None)) 
+        # get local time or None (in the case that either dt or timezone is None)
+        
+        visibility = weatherData.get("visibility", None) # either weatherData["visibility"] or None
+        
+        rain_1h = weatherData.get("rain", {}).get("1h", 0) # either weatherData["rain"]["1h"] or 0 (because it has not rained in the past 1hr)
+        snow_1h = weatherData.get("snow", {}).get("1h", 0) # either weatherData["snow"]["1h"] or 0 (because it has not snowed in the past 1hr)
+        
+        lat = weatherData.get("coord", {}).get("lat", None) # either weatherData["coord"]["lat"] or None
+        lon = weatherData.get("coord", {}).get("lon", None) # either weatherData["coord"]["lon"] or None
+        
         return WeatherData(temperature, humidity, wind_speed, cloud_cover,
                            local_time, visibility, gust, rain_1h, snow_1h, lat, lon)
 

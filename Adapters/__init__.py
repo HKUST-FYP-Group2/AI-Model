@@ -1,5 +1,2 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(
-    os.path.dirname(__file__), os.path.pardir)))
+from .WebCam_Client import WebCamClient
+from .Weather_Client import WeatherClient, WeatherData

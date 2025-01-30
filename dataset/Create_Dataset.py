@@ -1,11 +1,10 @@
 import csv
 import ijson
 from Logger.Logger import logger
-from Adapters.WebCam_Client import WebCamClient
-from Adapters.Weather_Client import WeatherClient, WeatherData
+from Adapters import WeatherClient, WebCamClient, WeatherData
 from time import sleep
 from ftfy import fix_text
-from PIL import Image
+
 
 
 class CreateDataset():
@@ -30,26 +29,26 @@ class CreateDataset():
         logger.info(f"{__file__}: Creating dataset for {city}")
         logger.info(f"{__file__}: Fetching weather info for {city}")
 
-        weatherInfo, weather_status = self.openWeatherFetcher.get_weather_info(
-            openWeatherKey, location=city)
+        weatherInfo, weather_info_fetch_success = self.openWeatherFetcher.get_weather_info(
+            openWeatherKey, location=city) # this gets the weather info from the openWeatherFetcher
 
-        if not weather_status:
+        if not weather_info_fetch_success:
             logger.error(
                 f"{__file__}: Error in fetching weather info for {city}")
-            return None
+            return None # None is returned, because weather information did not exist for the city, so noo webcams are searched for it
 
-        webCamIds, success = self.webCamFetcher.getImageIds(
-            key=WindyKey, lat=weatherInfo.lat, lon=weatherInfo.lon)
+        webCamIds, webcam_ID_fetch_success = self.webCamFetcher.getImageIds(
+            key=WindyKey, lat=weatherInfo.lat, lon=weatherInfo.lon) # this gets the webcam ids from the webCamFetcher
 
-        if not success:
+        if not webcam_ID_fetch_success:
             logger.error(
                 f"{__file__}: Error in fetching webcam ids for {city}")
-            return None
+            return None # None is returned, because the webcam ids did not exist for the city, so no information is not returned (no point)
 
-        success, count = self.webCamFetcher.downloadImages(
+        webcam_ID_fetch_success, count = self.webCamFetcher.downloadImages(
             key=WindyKey, webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/{id}")
 
-        if not success:
+        if not webcam_ID_fetch_success:
             logger.error(
                 f"{__file__}: Error in fetching webcam images for {city}")
             return None
