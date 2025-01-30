@@ -8,9 +8,9 @@ class SEBlock(nn.Module):
         super(SEBlock, self).__init__()
         self.model = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(input_channel_dim, input_channel_dim // reduction_ratio),
+            nn.Conv2d(input_channel_dim, input_channel_dim // reduction_ratio, kernel_size=1),
             nn.LeakyReLU(inplace=True),
-            nn.Conv2d(input_channel_dim // reduction_ratio, input_channel_dim),
+            nn.Conv2d(input_channel_dim // reduction_ratio, input_channel_dim, kernel_size=1),
             nn.Sigmoid()
         )
 
@@ -65,7 +65,7 @@ class FYP_CNN(nn.Module):
     def __init__(self, input_channel_dim, hidden_dim: int, input_numeric_dim: int, hidden_numeric_dim: int, combin_hidden_dim: int, num_output: int):
         super(FYP_CNN, self).__init__()
         self.ImagePreprocessing = nn.Sequential(
-            SE_ResNet(input_channel_dim, input_channel_dim),
+            SE_ResNet(input_channel_dim, input_channel_dim, downsampling=False),
             SE_ResNet(input_channel_dim, hidden_dim, True),
             SE_ResNet(hidden_dim, hidden_dim, True),
         )
@@ -75,12 +75,12 @@ class FYP_CNN(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(hidden_numeric_dim, hidden_numeric_dim),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden_numeric_dim, hidden_numeric_dim/2),
+            nn.Linear(hidden_numeric_dim, hidden_numeric_dim // 2),
             nn.ReLU(inplace=True),
         )
 
         self.Combine = nn.Sequential(
-            nn.Linear(64*64 + hidden_numeric_dim/2, combin_hidden_dim),
+            nn.Linear(64*64 + hidden_numeric_dim//2, combin_hidden_dim),
             nn.LeakyReLU(),
             nn.Linear(combin_hidden_dim, combin_hidden_dim),
             nn.LeakyReLU(),

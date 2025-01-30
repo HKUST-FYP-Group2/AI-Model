@@ -1,11 +1,14 @@
 import csv
 import ijson
+import os
+import pandas as pd
+import torch
+from ftfy import fix_text
+from PIL import Image
+from time import sleep
+
 from Logger.Logger import logger
 from Adapters import WeatherClient, WebCamClient, WeatherData
-from time import sleep
-from ftfy import fix_text
-
-
 
 class CreateDataset():
     def __init__(self, mode: str = "json", units: str = "standard", lang: str = "en",
@@ -80,3 +83,31 @@ class CreateDataset():
                     {'id': id, **infoDict})
                 csvfile.flush()
                 sleep(0.1)
+                
+class DataLoader:
+    def __init__(self,datasetRootPATH:str, transformer:callable):
+        self.root = datasetRootPATH
+        self.dataset = pd.read_csv(f"{datasetRootPATH}/dataset.csv",header=None)
+        self.transformer = transformer
+    
+    @property
+    def shape(self):
+        return self.dataset.shape
+    
+    def __getitem__(self,idx):
+        row = self.dataset.iloc[idx]
+        image_index = row["id"]
+        
+        X = row.loc[["local_time","lat","lon"]]
+        Y:pd.Series = row.loc[["temperature","humidity","wind_speed","cloud_cover","visibility","gust","rain_1h","snow_1h"]]
+        
+        image_path = f"{self.root}/images/{image_index}/"
+        img_store = []
+        for img in os.listdir(image_path):
+            image = Image.open(f"{image_path}/{img}")
+            image = self.transformer(image)
+            img_store.append(image)
+        
+        image_tensor = torch.stack(img_store)
+        
+        return image_tensor, X, Y
