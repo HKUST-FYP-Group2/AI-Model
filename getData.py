@@ -5,16 +5,16 @@ from dataset.Create_Dataset import CreateDataset
 
 def createDataset():
     Manager = CreateDataset()
-    Manager.downloadDataset(os.getenv("openWeather_api_key"),
-                            os.getenv("Windy_webCam_api_key"))
+    Manager.downloadDataset(os.getenv("OPENWEATHER_API_KEY"),
+                            os.getenv("WINDY_WEBCAM_API_KEY"))
 
 
 if __name__ == "__main__":
     if os.path.exists(".env"):
         dotenv.load_dotenv()
-        if os.getenv("openWeather_api_key") is None:
+        if os.getenv("OPENWEATHER_API_KEY") is None:
             raise ValueError("No OpenWeatherMap API key found in .env file")
-        if os.getenv("Windy_webCam_api_key") is None:
+        if os.getenv("WINDY_WEBCAM_API_KEY") is None:
             raise ValueError("No Windy.com API key found in .env file")
         createDataset()
     else:
