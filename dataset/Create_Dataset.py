@@ -85,14 +85,21 @@ class CreateDataset():
                 sleep(0.1)
                 
 class DatasetProcessor:
-    def __init__(self,datasetRootPATH:str, transformer:callable):
+    def __init__(self,datasetRootPATH:str, transformer:callable, device:torch.device):
         self.root = datasetRootPATH
-        self.dataset = pd.read_csv(f"{datasetRootPATH}/dataset.csv",header=None)
+        self.dataset = pd.read_csv(f"{datasetRootPATH}/dataset.csv",header=None).loc[1:]
         self.transformer = transformer
+        self.device = device
     
     @property
     def shape(self):
         return self.dataset.shape
+    
+    def __convToFloat(self, row: pd.Series, indices:list[int]):
+        nums = row.loc[indices]
+        nums = [float(num) for num in nums]
+        return nums
+        
     
     def __len__(self):
         return len(self.dataset)
@@ -101,8 +108,8 @@ class DatasetProcessor:
         row = self.dataset.iloc[idx]
         image_index = row[0]
         
-        X = row.loc[[5,10,11]].astype(float)
-        Y= row.loc[[1,2,3,4,6,7,8,9]].astype(float)
+        X = self.__convToFloat(row, [5,10,11])
+        Y= self.__convToFloat(row, [1,2,3,4,6,7,8,9])
         
         image_path = f"{self.root}/images/{image_index}/"
         img_store = []
@@ -111,6 +118,5 @@ class DatasetProcessor:
             image = self.transformer(image)
             img_store.append(image)
         
-        image_tensor = torch.stack(img_store)
-        
-        return image_tensor, torch.tensor(X.values), torch.tensor(Y.values)
+        image_tensor = torch.stack(img_store).to(self.device)
+        return image_tensor, torch.tensor(X,device=self.device), torch.tensor(Y,device=self.device)
