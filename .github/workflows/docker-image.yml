@@ -28,3 +28,6 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          secrets: |
+            OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}
+            WINDY_WEBCAM_API_KEY=${{ secrets.WINDY_WEBCAM_API_KEY }}

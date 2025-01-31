@@ -6,10 +6,10 @@ WORKDIR /model
 # Copy the requirements file
 COPY requirements.txt .
 
-RUN --mount=type=secret,id=OPENWEATHER_API_KEY\
-    --mount=type=secret,id=WINDY_WEBCAM_API_KEY\
-    export OPENWEATHER_API_KEY=$(cat /run/secrets/OPENWEATHER_API_KEY) &&\
-    export WINDY_WEBCAM_API_KEY=$(cat /run/secrets/WINDY_WEBCAM_API_KEY)
+RUN --mount=type=secret,id=OPENWEATHER_API_KEY \
+    --mount=type=secret,id=WINDY_WEBCAM_API_KEY \
+    bash -c 'export OPENWEATHER_API_KEY=$(cat /run/secrets/OPENWEATHER_API_KEY) && \
+    export WINDY_WEBCAM_API_KEY=$(cat /run/secrets/WINDY_WEBCAM_API_KEY)'
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
