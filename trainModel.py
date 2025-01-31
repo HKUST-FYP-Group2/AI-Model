@@ -46,3 +46,5 @@ for epoch in range(NUM_EPOCH):
         optimizer.step()
         
     print(f"Epoch {epoch+1} completed")
+    
+torch.save(model.state_dict(), "./model.pth")
