@@ -4,7 +4,7 @@ from dataset.Create_Dataset import CreateDataset
 
 
 def createDataset():
-    Manager = CreateDataset()
+    Manager = CreateDataset(dist_range=10)
     Manager.downloadDataset(os.getenv("OPENWEATHER_API_KEY"),
                             os.getenv("WINDY_WEBCAM_API_KEY"))
 

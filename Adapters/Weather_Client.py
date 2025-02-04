@@ -3,6 +3,7 @@ from ._HTTP_Client import HttpClient
 from dataclasses import dataclass
 import asyncio
 from Logger.Logger import logger
+import datetime
 
 
 @dataclass(frozen=True)
@@ -34,11 +35,13 @@ class WeatherClient(HttpClient):
     def _calcLocalTime(self, unixTime: int, offset: int) -> int:
         if unixTime is None or offset is None:
             return None
+        
         localTime = unixTime + offset
-        hours = localTime // 3600 % 24
-        minutes = (localTime % 3600) // 60
-        seconds = localTime % 60
-        return hours * 3600 + minutes * 60 + seconds
+        local_datetime = datetime.datetime.fromtimestamp(localTime)
+        start_of_year = int(datetime.datetime(local_datetime.year, 1, 1).timestamp())
+        seconds_since_start_of_year = localTime - start_of_year
+        
+        return seconds_since_start_of_year
 
     def _constructWeatherData(self, weatherData: dict) -> WeatherData:
         temperature = weatherData.get("main", {}).get("temp", None) # either weatherData["main"]["temp"] or None   
