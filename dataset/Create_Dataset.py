@@ -68,19 +68,33 @@ class CreateDataset():
         return writeDict
 
     def downloadDataset(self, openWeatherKey: str, WindyKey: str):
-        with open(f"{self.outputPath}/dataset.csv", "w", newline='') as csvfile:
+        existing_ids = set()
+
+        # Check if the dataset.csv file exists and read existing city IDs
+        if os.path.exists(f"{self.outputPath}/dataset.csv"):
+            with open(f"{self.outputPath}/dataset.csv", "r") as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    existing_ids.add(row["id"])
+
+        with open(f"{self.outputPath}/dataset.csv", "a", newline='') as csvfile:
             fieldnames = ["id"] + WeatherData().getNames
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
+
+            # Write header only if the file is new
+            if not existing_ids:
+                writer.writeheader()
 
             for id, city in self._getCities():
-                infoDict = self._downloadInstance(
-                    openWeatherKey, WindyKey, id, city)
+                if id in existing_ids:
+                    print(f"Skipping {city} (ID: {id}) as it is already processed")
+                    continue
+
+                infoDict = self._downloadInstance(openWeatherKey, WindyKey, id, city)
                 if infoDict is None:
                     continue
 
-                writer.writerow(
-                    {'id': id, **infoDict})
+                writer.writerow({'id': id, **infoDict})
                 csvfile.flush()
                 print(f"Dataset for {city} created successfully")
                 sleep(0.1)
