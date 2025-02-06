@@ -1,7 +1,7 @@
 FROM pytorch/pytorch:latest
 
 # Set the working directory
-WORKDIR /model
+WORKDIR /project/fyp24_gib4/AI-Model2
 
 # Copy the requirements file
 COPY requirements.txt .
