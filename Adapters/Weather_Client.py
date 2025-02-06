@@ -67,7 +67,7 @@ class WeatherClient(HttpClient):
         return WeatherData(temperature, humidity, wind_speed, cloud_cover,
                            local_time, visibility, gust, rain_1h, snow_1h, lat, lon)
 
-    def get_weather_info(self, key: str, location: str = None, lat: float = None, lon: float = None) -> tuple[WeatherData, Literal[False]] | tuple[WeatherData, Literal[True]]:
+    def get_weather_info(self, key: str, location: str = None, lat: float = None, lon: float = None):
         if location and (lat or lon):
             logger.error(
                 f"{__file__}: Please provide either location or lat and lon, not both")
