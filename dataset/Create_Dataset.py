@@ -82,6 +82,7 @@ class CreateDataset():
                 writer.writerow(
                     {'id': id, **infoDict})
                 csvfile.flush()
+                print(f"Dataset for {city} created successfully")
                 sleep(0.1)
                 
 class DatasetProcessor:
