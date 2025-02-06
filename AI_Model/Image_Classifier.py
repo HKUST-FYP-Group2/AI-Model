@@ -75,7 +75,7 @@ class SE_ResNet(nn.Module):
 
 
 class FYP_CNN(nn.Module):
-    def __init__(self, input_channel_dim, hidden_dim: int, input_numeric_dim: int, hidden_numeric_dim: int, combin_hidden_dim: int, num_output: int):
+    def __init__(self, input_channel_dim, hidden_dim: int, extractor_hidden_dim: int, num_output: int):
         super(FYP_CNN, self).__init__()
         self.ImagePreprocessing = nn.Sequential(
             SE_ResNet(input_channel_dim, hidden_dim,
@@ -86,28 +86,17 @@ class FYP_CNN(nn.Module):
                       hidden_dim//4,True, (64,64)),
         )
 
-        self.NumericInformationPreprocessing = nn.Sequential(
-            nn.Linear(input_numeric_dim, hidden_numeric_dim*2),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_numeric_dim*2, hidden_numeric_dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_numeric_dim, hidden_numeric_dim // 2),
-            nn.ReLU(inplace=True),
-        )
-
-        self.Combine = nn.Sequential(
-            nn.Linear(32*32*hidden_dim + hidden_numeric_dim//2, combin_hidden_dim),
+        self.extract = nn.Sequential(
+            nn.Linear(32*32*hidden_dim, extractor_hidden_dim),
             nn.LeakyReLU(),
-            nn.Linear(combin_hidden_dim, num_output),
+            nn.Linear(extractor_hidden_dim, num_output),
             nn.Sigmoid()
         )
 
-    def forward(self, image, info):
+    def forward(self, image):
         image_out = self.ImagePreprocessing(image)
-        info_out = self.NumericInformationPreprocessing(info)
         image_out = torch.flatten(image_out, 1)
-        combined = torch.cat((image_out, info_out), 1)
-        return self.Combine(combined)
+        return self.extract(image_out)
 
 
 class LossFunction(nn.Module):

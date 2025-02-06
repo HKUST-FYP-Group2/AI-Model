@@ -100,7 +100,6 @@ class DatasetProcessor:
         nums = row.loc[indices]
         nums = [float(num) for num in nums]
         return nums
-        
     
     def __len__(self):
         return len(self.dataset)
@@ -118,6 +117,7 @@ class DatasetProcessor:
             image = Image.open(f"{image_path}{img}")
             image = self.transformer(image)
             img_store.append(image)
+            break
         
         image_tensor = torch.stack(img_store).to(self.device)
         return image_tensor, torch.tensor(X,device=self.device), torch.tensor(Y,device=self.device)

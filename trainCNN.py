@@ -21,7 +21,6 @@ dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 model = FYP_CNN(3,32,
-                3, 32,
                 128, 8).to(device)
 
 loss_fn = LossFunction(device=device).to(device)
@@ -33,14 +32,9 @@ for epoch in range(NUM_EPOCH):
         optimizer.zero_grad()
         
         img1 = images[:, 0, ...]
-        output1 = model(img1, X)
+        output1 = model(img1)
         
-        img2 = images[:, 1, ...]       
-        output2 = model(img2, X)
-        
-        loss1 = loss_fn(output1, Y)
-        loss2 = loss_fn(output2, Y)
-        loss = (loss1 + loss2)/2
+        loss = loss_fn(output1, Y)
         
         loss.backward()
         optimizer.step()

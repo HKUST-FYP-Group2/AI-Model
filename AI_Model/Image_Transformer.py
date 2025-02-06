@@ -10,8 +10,7 @@ class PerceiverIO(nn.Module):
     def __init__(self, embedding_dim, input_feature_dim ,ouput_feature_dim, num_layers, num_heads, mlp_dim):
         super(PerceiverIO, self).__init__()
         self.image_embedder = PatchEmbedding(3, 16, embedding_dim)
-        self.numeric_embedder = NumericEmedding(1, embedding_dim)
-        
+
         self.latentFeatures = nn.Linear(embedding_dim, embedding_dim)
         self.outputFeatures = nn.Linear(input_feature_dim, ouput_feature_dim)
         
@@ -31,17 +30,15 @@ class PerceiverIO(nn.Module):
         return output.permute(0, 2, 1)
         
 
-    def forward(self, img, X):
+    def forward(self, img):
         img_embedding = self.image_embedder(img)
-        numeric_embedding = self.numeric_embedder(X)
         
-        combinedInput = torch.cat((img_embedding, numeric_embedding), dim=1)
-        latentArray = self.latentFeatures(combinedInput)
+        latentArray = self.latentFeatures(img_embedding)
         
-        latentArrays,_ = self.encoder(latentArray, combinedInput, combinedInput)
+        latentArrays,_ = self.encoder(latentArray, img_embedding, img_embedding)
         beforeDecode = self.encoder_blocks(latentArrays)
         
-        outputArray = self.outputConvert(combinedInput)
+        outputArray = self.outputConvert(img_embedding)
         
         decodedOutput = self.decoder(outputArray, beforeDecode)
         decodedOutput = decodedOutput.squeeze(2)
