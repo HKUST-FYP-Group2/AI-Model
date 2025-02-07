@@ -1,7 +1,5 @@
 from torch import nn
-import torch
 from .Embedders.Image_Embedder import PatchEmbedding
-from .Embedders.Numeric_Embedder import NumericEmedding
 from .Transformer_Blocks.Process_Blocks import ProcessAttentionBlock
 from .Transformer_Blocks.Decode_Blocks import DecodeBlock
         

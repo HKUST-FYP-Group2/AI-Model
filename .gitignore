@@ -174,3 +174,4 @@ test*
 
 *.jpg
 dataset.*
+.vscode/

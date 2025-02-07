@@ -1,4 +1,3 @@
-from typing import Literal
 from ._HTTP_Client import HttpClient
 from dataclasses import dataclass
 import asyncio
