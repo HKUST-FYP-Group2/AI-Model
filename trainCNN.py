@@ -41,4 +41,4 @@ for epoch in range(NUM_EPOCH):
         
     print(f"Epoch {epoch+1} completed")
     
-torch.save(model.state_dict(), "./model.pth")
+torch.save(model.state_dict(), "./CNN.pth")

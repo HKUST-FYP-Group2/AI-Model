@@ -28,13 +28,17 @@ model = PerceiverIO(128,
 loss_fn = LossFunction(device=device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
+for epoch in range(NUM_EPOCH):
+    for images, X, Y in trainLoader:
+        img1 = images[:, 0, ...]
+        output1 = model(img1)
+        loss = loss_fn(output1, Y)
+        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+    print(f"Epoch {epoch+1} completed")
 
-for images, X, Y in trainLoader:
-    img1 = images[:, 0, ...]
-    output1 = model(img1)
-    loss = loss_fn(output1, Y)
-    
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
+torch.save(model.state_dict(), "./transformer.pth")
     
