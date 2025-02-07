@@ -32,6 +32,7 @@ loss_fn = LossFunction(device=device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
 for epoch in range(NUM_EPOCH):
+    i = 0
     for images, X, Y in trainLoader:
         img1 = images[:, 0, ...]
         output1 = model(img1)
@@ -40,6 +41,10 @@ for epoch in range(NUM_EPOCH):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        
+        i+=1
+        
+        print(f"batches done for epoch {epoch+1}: {i}/{len(trainLoader)}")
         
     print(f"Epoch {epoch+1} completed")
 
