@@ -23,7 +23,7 @@ print(device)
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-model = FYP_CNN(3,32,
+model = FYP_CNN(3,128,
                 128, 8).to(device)
 
 loss_fn = LossFunction(device=device).to(device)
