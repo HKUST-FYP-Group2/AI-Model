@@ -15,7 +15,7 @@ transformer = transforms.Compose([
 ])
 
 NUM_EPOCH = 10
-BASE_PATH = os.path.join(os.path.dirname(__file__), "/dataset")
+BASE_PATH = os.path.dirname(__file__) + "/dataset"
 print(BASE_PATH)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
