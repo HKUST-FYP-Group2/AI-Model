@@ -5,6 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torch.optim import Adam
+import os
 
 transformer = transforms.Compose([
     transforms.Resize((256, 256)),
@@ -13,9 +14,11 @@ transformer = transforms.Compose([
 ])
 
 NUM_EPOCH = 10
-BASE_PATH = "./dataset/"
+BASE_PATH = os.path.join(os.path.dirname(__file__), "/dataset")
+print(BASE_PATH)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
 
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
