@@ -13,9 +13,6 @@ RUN --mount=type=secret,id=OPENWEATHER_API_KEY \
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project files
-COPY . .
-
 # Set environment variables if needed
 ENV PYTHONUNBUFFERED=1
 
