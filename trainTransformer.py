@@ -48,5 +48,6 @@ for epoch in range(NUM_EPOCH):
         
     print(f"Epoch {epoch+1} completed")
 
-torch.save(model.state_dict(), "./transformer.pth")
+savePath = os.path.dirname(__file__) + "/transformer.pth"
+torch.save(model.state_dict(), savePath)
     
