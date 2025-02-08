@@ -1,7 +1,5 @@
 import torch
 from torch import nn
-from torch.nn import MSELoss, L1Loss, HuberLoss
-
 
 class SEBlock(nn.Module):
     def __init__(self, input_channel_dim, reduction_ratio, output_channel_dim):
@@ -74,9 +72,9 @@ class SE_ResNet(nn.Module):
         return self.relu2(out + residual)
 
 
-class FYP_CNN(nn.Module):
+class SE_CNN(nn.Module):
     def __init__(self, input_channel_dim, hidden_dim: int, extractor_hidden_dim: int, num_output: int):
-        super(FYP_CNN, self).__init__()
+        super(SE_CNN, self).__init__()
         self.ImagePreprocessing = nn.Sequential(
             SE_ResNet(input_channel_dim, hidden_dim,
                       1, True,(256,256)),
@@ -97,27 +95,3 @@ class FYP_CNN(nn.Module):
         image_out = self.ImagePreprocessing(image)
         image_out = torch.flatten(image_out, 1)
         return self.extract(image_out)
-
-
-class LossFunction(nn.Module):
-    def __init__(self, importance: list = [1, 1, 1, 1, 1, 1, 1, 1], device:torch.device = torch.device("cpu")):
-        super(LossFunction, self).__init__()
-        importance = torch.tensor(importance, device=device)
-        self.MSE_Mask = torch.tensor([1, 0, 0, 1, 1, 1, 0, 0],device=device) * importance
-        self.MAE_Mask = torch.tensor([0, 1, 0, 0, 0, 0, 1, 1],device=device) * importance
-        self.Huber_Mask = torch.tensor([0, 0, 1, 0, 0, 0, 0, 0], device=device) * importance
-        self._MSEFunction = MSELoss()
-        self._MAEFunction = L1Loss()
-        self._HuberFunction = HuberLoss()
-
-    def _MSE(self, output, target):
-        return self._MSEFunction(output, target) * self.MSE_Mask
-
-    def _MAE(self, output, target):
-        return self._MAEFunction(output, target) * self.MAE_Mask
-
-    def _Huber(self, output, target):
-        return self._HuberFunction(output, target) * self.Huber_Mask
-
-    def forward(self, output, target):
-        return torch.mean(self._MSE(output, target) + self._MAE(output, target) + self._Huber(output, target))

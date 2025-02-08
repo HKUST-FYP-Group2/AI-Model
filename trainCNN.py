@@ -1,4 +1,4 @@
-from AI_Model.Image_Classifier import FYP_CNN, LossFunction
+from Models import SE_CNN, LossFunction
 from dataset import DatasetProcessor
 
 import torch
@@ -23,7 +23,7 @@ print(device)
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-model = FYP_CNN(3,128,
+model = SE_CNN(3,128,
                 128, 8).to(device)
 
 loss_fn = LossFunction(device=device).to(device)

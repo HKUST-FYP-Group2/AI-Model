@@ -1,6 +1,5 @@
 from dataset import DatasetProcessor
-from AI_Model.Image_Transformer import PerceiverIO
-from AI_Model.Image_Classifier import LossFunction
+from Models import PerceiverIO, LossFunction
 
 import torch
 from torch.utils.data import DataLoader
