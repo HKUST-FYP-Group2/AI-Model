@@ -11,16 +11,17 @@ from Adapters import WeatherClient, WebCamClient, WeatherData
 class CreateDataset():
     def __init__(self, mode: str = "json", units: str = "standard", lang: str = "en",
                  limit: int = 2, dist_range: int = 250.0,
-                 outputPath: str = "./dataset",
+                 basePath = "",
+                 outputPath: str = "dataset",
                  imageTargetSize: tuple[int, int] = (256, 256),
-                 regionsToCoverPath: str = "./worldcities.csv"):
+                 regionsToCoverName: str = "worldcities.csv"):
         
         self.openWeatherFetcher = WeatherClient(
             mode=mode, units=units, lang=lang)
         self.webCamFetcher = WebCamClient(
             limit=limit, dist_range=dist_range, outputImageSize=imageTargetSize)
-        self.outputPath = outputPath
-        self.regionsToCoverPath = regionsToCoverPath
+        self.outputPath = f"{basePath}/{outputPath}"
+        self.regionsToCoverPath = f"{basePath}/{regionsToCoverName}"
 
     def _getCities(self):
         with open(self.regionsToCoverPath, "r") as f:
@@ -75,7 +76,7 @@ class CreateDataset():
             with open(f"{self.outputPath}/dataset.csv", "r") as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    existing_ids.add(row["id"])
+                    existing_ids.add(int(row["id"]))
 
         with open(f"{self.outputPath}/dataset.csv", "a", newline='') as csvfile:
             fieldnames = ["id"] + WeatherData().getNames
@@ -87,7 +88,8 @@ class CreateDataset():
 
             for id, city in self._getCities():
                 if id in existing_ids:
-                    print(f"Skipping {city} (ID: {id}) as it is already processed")
+                    logger.info(
+                        f"{__file__}: skipping Dataset for {city}, since it already exists")
                     continue
 
                 infoDict = self._downloadInstance(openWeatherKey, WindyKey, id, city)
