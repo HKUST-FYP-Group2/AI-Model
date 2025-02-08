@@ -29,6 +29,7 @@ trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 for img, X, Y in trainLoader:
     # image = Image.open(f"TestImages/{img}")
     # image = transformer(image).unsqueeze(0)
+    img = img[:,0,...]
     output = model(img)
 
     print(output)

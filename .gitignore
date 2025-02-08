@@ -178,3 +178,5 @@ dataset.*
 
 TrainedWeights/*
 Test*
+
+*.venv/
