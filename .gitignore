@@ -175,3 +175,6 @@ test*
 *.jpg
 dataset.*
 .vscode/
+
+TrainedWeights/*
+Test*
