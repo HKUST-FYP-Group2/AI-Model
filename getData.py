@@ -3,7 +3,9 @@ import dotenv
 from dataset.Create_Dataset import CreateDataset
 
 def createDataset():
-    Manager = CreateDataset(dist_range=5,limit=1) # more safe
+    BASE_PATH = os.path.dirname(__file__) + "/dataset"
+    
+    Manager = CreateDataset(outputPath=BASE_PATH,dist_range=5,limit=1) # more safe
     Manager.downloadDataset(os.getenv("OPENWEATHER_API_KEY"),
                             os.getenv("WINDY_WEBCAM_API_KEY"))
 
