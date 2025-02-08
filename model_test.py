@@ -3,6 +3,8 @@ from torchvision import transforms
 from Models import SE_CNN
 import os
 from PIL import Image
+from dataset import DatasetProcessor
+from torch.utils.data import DataLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -20,13 +22,14 @@ model.load_state_dict(weights)
 
 featuresNames = ["temperature", "humidity", "wind_speed", "cloud_cover", "visibility", "gust", "rain_1h", "snow_1h"]
 
-for img in os.listdir("TestImages"):
-    image = Image.open(f"TestImages/{img}")
-    image = transformer(image).unsqueeze(0)
-    output = model(image)
-    namedOutput = {}
-    for i in range(len(featuresNames)):
-        namedOutput[featuresNames[i]] = output[0][i].item()
+BASE_PATH = os.path.dirname(__file__) + "/dataset"
+dataset = DatasetProcessor(BASE_PATH, transformer, device)
+trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+for img, X, Y in trainLoader:
+    # image = Image.open(f"TestImages/{img}")
+    # image = transformer(image).unsqueeze(0)
+    output = model(img)
 
     print(output)
 
