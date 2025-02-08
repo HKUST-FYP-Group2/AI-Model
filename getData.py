@@ -2,8 +2,9 @@ import os
 import dotenv
 from dataset.Create_Dataset import CreateDataset
 
+BASE_PATH = os.path.dirname(__file__) + "/dataset"
+
 def createDataset():
-    BASE_PATH = os.path.dirname(__file__) + "/dataset"
     
     Manager = CreateDataset(outputPath=BASE_PATH,dist_range=5,limit=1) # more safe
     Manager.downloadDataset(os.getenv("OPENWEATHER_API_KEY"),
@@ -11,7 +12,7 @@ def createDataset():
 
 
 if __name__ == "__main__":
-    if os.path.exists(".env"):
+    if os.path.exists(f"{BASE_PATH}/.env"):
         dotenv.load_dotenv()
         if os.getenv("OPENWEATHER_API_KEY") is None:
             raise ValueError("No OpenWeatherMap API key found in .env file")
