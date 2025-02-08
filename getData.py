@@ -12,6 +12,7 @@ def createDataset():
 
 
 if __name__ == "__main__":
+    print(BASE_PATH)
     if os.path.exists(f"{BASE_PATH}/.env"):
         dotenv.load_dotenv()
         if os.getenv("OPENWEATHER_API_KEY") is None:
