@@ -3,12 +3,12 @@ from torch import nn
 from torch.nn import MSELoss, L1Loss, HuberLoss
 
 class LossFunction(nn.Module):
-    def __init__(self, importance: list = [1, 1, 1, 1, 1, 1, 1, 1], device:torch.device = torch.device("cpu")):
+    def __init__(self, MSE_importance:int = 1, MAE_importance:int =1, Huber_importance:int = 1 ,
+                 device:torch.device = torch.device("cpu")):
         super(LossFunction, self).__init__()
-        importance = torch.tensor(importance, device=device)
-        self.MSE_Mask = torch.tensor([1, 0, 0, 1, 1, 1, 0, 0],device=device) * importance
-        self.MAE_Mask = torch.tensor([0, 1, 0, 0, 0, 0, 1, 1],device=device) * importance
-        self.Huber_Mask = torch.tensor([0, 0, 1, 0, 0, 0, 0, 0], device=device) * importance
+        self.MSE_Mask = torch.tensor([1, 0, 0, 1, 1, 1, 0, 0],device=device) * MSE_importance
+        self.MAE_Mask = torch.tensor([0, 1, 0, 0, 0, 0, 1, 1],device=device) * MAE_importance
+        self.Huber_Mask = torch.tensor([0, 0, 1, 0, 0, 0, 0, 0], device=device) * Huber_importance
         self._MSEFunction = MSELoss()
         self._MAEFunction = L1Loss()
         self._HuberFunction = HuberLoss()
@@ -23,4 +23,8 @@ class LossFunction(nn.Module):
         return self._HuberFunction(output, target) * self.Huber_Mask
 
     def forward(self, output, target):
-        return torch.mean(self._MSE(output, target) + self._MAE(output, target) + self._Huber(output, target))
+        MSE_loss = self._MSE(output, target)
+        MAE_loss = self._MAE(output, target)
+        Huber_loss = self._Huber(output, target)
+        combined_loss = MSE_loss + MAE_loss + Huber_loss
+        return torch.mean(combined_loss)

@@ -27,7 +27,8 @@ model = PerceiverIO(128,
                     256, 
                     8, 3, 8,
                     128).to(device)
-loss_fn = LossFunction(device=device).to(device)
+loss_fn = LossFunction(1/1000000, 1/100,
+                       1/100,device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
 for epoch in range(NUM_EPOCH):

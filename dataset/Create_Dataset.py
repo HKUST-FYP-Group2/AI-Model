@@ -1,9 +1,7 @@
 import csv
-import ijson
 import os
 import pandas as pd
 import torch
-from ftfy import fix_text
 from PIL import Image
 from time import sleep
 
@@ -15,7 +13,8 @@ class CreateDataset():
                  limit: int = 2, dist_range: int = 250.0,
                  outputPath: str = "./dataset",
                  imageTargetSize: tuple[int, int] = (256, 256),
-                 regionsToCoverPath: str = "./cities500.json"):
+                 regionsToCoverPath: str = "./worldcities.csv"):
+        
         self.openWeatherFetcher = WeatherClient(
             mode=mode, units=units, lang=lang)
         self.webCamFetcher = WebCamClient(
@@ -25,8 +24,9 @@ class CreateDataset():
 
     def _getCities(self):
         with open(self.regionsToCoverPath, "r") as f:
-            for city in ijson.items(f, "item"):
-                yield city["id"], fix_text(city["name"])
+            reader = csv.DictReader(f)
+            for row in reader:
+                yield int(row["id"]), row["city_ascii"]
 
     def _downloadInstance(self, openWeatherKey: str, WindyKey: str, id: int, city: str):
         logger.info(f"{__file__}: Creating dataset for {city}")
@@ -48,7 +48,7 @@ class CreateDataset():
                 f"{__file__}: Error in fetching webcam ids for {city}")
             return None # None is returned, because the webcam ids did not exist for the city, so no information is not returned (no point)
 
-        webcam_ID_fetch_success, count = self.webCamFetcher.downloadImages(
+        webcam_ID_fetch_success, count = self.webCamFetcher.downloadImages( # this part downloads the images from the webCamFetcher
             key=WindyKey, webcamIds=webCamIds, outputPath=f"{self.outputPath}/images/{id}")
 
         if not webcam_ID_fetch_success:
@@ -96,7 +96,6 @@ class CreateDataset():
 
                 writer.writerow({'id': id, **infoDict})
                 csvfile.flush()
-                print(f"Dataset for {city} created successfully")
                 sleep(0.1)
                 
 class DatasetProcessor:

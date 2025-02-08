@@ -23,10 +23,11 @@ print(device)
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-model = SE_CNN(3,128,
-                128, 8).to(device)
+model = SE_CNN(3,64,
+                64, 8).to(device)
 
-loss_fn = LossFunction(device=device).to(device)
+loss_fn = LossFunction(1/1000000, 1/100,
+                       1/100,device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
 model.train()
