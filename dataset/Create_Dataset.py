@@ -127,12 +127,9 @@ class DatasetProcessor:
         Y= self.__convToFloat(row, [1,2,3,4,6,7,8,9])
         
         image_path = f"{self.root}/images/{image_index}/"
-        img_store = []
         for img in os.listdir(image_path):
             image = Image.open(f"{image_path}{img}")
             image = self.transformer(image)
-            img_store.append(image)
-            break
         
-        image_tensor = torch.stack(img_store).to(self.device)
-        return image_tensor, torch.tensor(X,device=self.device), torch.tensor(Y,device=self.device)
+        image_tensor = image.to(self.device)
+        return idx , image_tensor, torch.tensor(Y,device=self.device)

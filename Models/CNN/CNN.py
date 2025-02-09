@@ -88,7 +88,6 @@ class SE_CNN(nn.Module):
             nn.Linear(32*32*hidden_dim, extractor_hidden_dim),
             nn.LeakyReLU(),
             nn.Linear(extractor_hidden_dim, num_output),
-            nn.Sigmoid()
         )
 
     def forward(self, image):

@@ -35,11 +35,11 @@ model.train()
 for epoch in range(NUM_EPOCH):
     i = 0
     cumalative_loss = 0
-    for images, X, Y in trainLoader:
+    for idx, image, Y in trainLoader:
         optimizer.zero_grad()
         
-        img1 = images[:, 0, ...]
-        output1 = model(img1)
+        output1 = model(image)
+        print(idx)
         
         loss = loss_fn(output1, Y)
         loss.backward()
