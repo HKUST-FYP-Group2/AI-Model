@@ -38,9 +38,14 @@ for epoch in range(NUM_EPOCH):
         optimizer.zero_grad()
         
         output1 = model(image)
-        print(idx)
+        if (torch.isnan(output1).any()):
+            print(f"Output1 has nan values for images {idx}")
         
         loss = loss_fn(output1, Y)
+        if (torch.isnan(loss).any()):
+            print(f"Loss has nan values for images {idx}")
+            print(f"Output1: {output1}")
+            print(f"Y: {Y}")
         print(loss.item())
         loss.backward()
         optimizer.step()
