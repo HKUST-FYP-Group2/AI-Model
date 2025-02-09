@@ -13,7 +13,7 @@ transformer = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-NUM_EPOCH = 10
+NUM_EPOCH = 100
 BASE_PATH = os.path.dirname(__file__) + "/dataset"
 print(BASE_PATH)
 
@@ -49,6 +49,10 @@ for epoch in range(NUM_EPOCH):
         print(f"batches done for epoch {epoch+1}: {i}/{len(trainLoader)}")
         
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
+    
+    if epoch % 10 == 0:
+        savePath = os.path.dirname(__file__) + f"TrainedWeights/transformer_{epoch}_{epoch+1}.pth"
+        torch.save(model.state_dict(), savePath)
     
 savePath = os.path.dirname(__file__) + "/CNN.pth"
 torch.save(model.state_dict(), savePath)
