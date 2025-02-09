@@ -59,6 +59,3 @@ for epoch in range(NUM_EPOCH):
     if (epoch+1) % 10 == 0:
         savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}.pth"
         torch.save(model.state_dict(), savePath)
-    
-savePath = os.path.dirname(__file__) + "/CNN.pth"
-torch.save(model.state_dict(), savePath)
