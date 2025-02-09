@@ -41,6 +41,7 @@ for epoch in range(NUM_EPOCH):
         print(idx)
         
         loss = loss_fn(output1, Y)
+        print(loss.item())
         loss.backward()
         optimizer.step()
         
