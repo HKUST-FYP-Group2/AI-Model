@@ -106,6 +106,10 @@ class DatasetProcessor:
         self.dataset = pd.read_csv(f"{datasetRootPATH}/dataset.csv",header=None).loc[1:]
         self.transformer = transformer
         self.device = device
+        self.__fixDataset()
+    
+    def __fixDataset(self):
+        self.dataset = self.dataset.dropna()
     
     @property
     def shape(self):
