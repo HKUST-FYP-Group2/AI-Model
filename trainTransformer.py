@@ -31,22 +31,25 @@ loss_fn = LossFunction(1/1000000, 1/100,
                        1/100,device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
+model.train()
 for epoch in range(NUM_EPOCH):
     i = 0
+    cumalative_loss = 0
     for images, X, Y in trainLoader:
+        optimizer.zero_grad()
+        
         img1 = images[:, 0, ...]
         output1 = model(img1)
-        loss = loss_fn(output1, Y)
         
-        optimizer.zero_grad()
+        loss = loss_fn(output1, Y)
         loss.backward()
         optimizer.step()
         
-        i+=1
-        
+        i+= 1
+        cumalative_loss += loss.item()
         print(f"batches done for epoch {epoch+1}: {i}/{len(trainLoader)}")
         
-    print(f"Epoch {epoch+1} completed")
+    print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
 
 savePath = os.path.dirname(__file__) + "/transformer.pth"
 torch.save(model.state_dict(), savePath)
