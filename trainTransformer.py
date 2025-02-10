@@ -53,6 +53,6 @@ for epoch in range(NUM_EPOCH):
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
     if (epoch+1) % 2 == 0:
-        savePath = os.path.dirname(__file__) + f"/TrainedWeights/transformer/{epoch+1}.pth"
+        savePath = os.path.dirname(__file__) + f"/TrainedWeights/Transformer/{epoch+1}.pth"
         torch.save(model.state_dict(), savePath)
     
