@@ -180,3 +180,6 @@ TrainedWeights/*
 Test*
 
 *.venv/
+
+model_CNN.txt
+model_Transformer.txt
