@@ -13,7 +13,7 @@ transformer = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-NUM_EPOCH = 10
+NUM_EPOCH = 100
 BASE_PATH = os.path.dirname(__file__) + "/dataset"
 print(BASE_PATH)
 
@@ -27,8 +27,8 @@ model = PerceiverIO(128,
                     256, 
                     8, 3, 8,
                     128).to(device)
-loss_fn = LossFunction(1/1000000, 1/100,
-                       1/100,device).to(device)
+loss_fn = LossFunction(1, 1,
+                       1,device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
 model.train()
@@ -39,9 +39,14 @@ for epoch in range(NUM_EPOCH):
         optimizer.zero_grad()
         
         output1 = model(image)
-        print(idx)
+        if (torch.isnan(output1).any()):
+            print(f"Output1 has nan values for images {idx}")
         
         loss = loss_fn(output1, Y)
+        if (torch.isnan(loss).any()):
+            print(f"Loss has nan values for images {idx}")
+            print(f"Output1: {output1}")
+            print(f"Y: {Y}")
         print(loss.item())
         loss.backward()
         optimizer.step()

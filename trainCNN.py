@@ -13,7 +13,7 @@ transformer = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-NUM_EPOCH = 10
+NUM_EPOCH = 100
 BASE_PATH = os.path.dirname(__file__) + "/dataset"
 print(BASE_PATH)
 
@@ -26,8 +26,8 @@ trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 model = SE_CNN(3,64,
                 64, 8).to(device)
 
-loss_fn = LossFunction(1/1000000, 1/100,
-                       1/100,device).to(device)
+loss_fn = LossFunction(1, 1,
+                       1,device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
 
 model.train()
