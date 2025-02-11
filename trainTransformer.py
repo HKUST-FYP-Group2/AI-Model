@@ -24,8 +24,8 @@ dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
 model = PerceiverIO(128, 
-                    128, 
-                    8, 64, 16,
+                    256, 
+                    8, 32, 16,
                     512).to(device)
 loss_fn = LossFunction(1, 1,
                        1,device).to(device)
