@@ -13,7 +13,7 @@ transformer = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-NUM_EPOCH = 50
+NUM_EPOCH = 44
 BASE_PATH = os.path.dirname(__file__) + "/dataset"
 print(BASE_PATH)
 
