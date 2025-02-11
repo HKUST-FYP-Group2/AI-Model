@@ -23,8 +23,8 @@ print(device)
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-model = PerceiverIO(256, 
-                    256, 
+model = PerceiverIO(128, 
+                    128, 
                     8, 64, 16,
                     512).to(device)
 loss_fn = LossFunction(1, 1,
