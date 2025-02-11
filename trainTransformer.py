@@ -21,12 +21,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
-trainLoader = DataLoader(dataset, batch_size=128, shuffle=True)
+trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-model = PerceiverIO(128, 
+model = PerceiverIO(256, 
                     256, 
-                    8, 3, 8,
-                    128).to(device)
+                    8, 64, 16,
+                    512).to(device)
 loss_fn = LossFunction(1, 1,
                        1,device).to(device)
 optimizer = Adam(model.parameters(), lr=0.001)
@@ -57,7 +57,7 @@ for epoch in range(NUM_EPOCH):
         
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
-    if (epoch+1) % 2 == 0:
+    if (epoch+1) % 4 == 0:
         savePath = os.path.dirname(__file__) + f"/TrainedWeights/Transformer/{epoch+1}.pth"
         torch.save(model.state_dict(), savePath)
     
