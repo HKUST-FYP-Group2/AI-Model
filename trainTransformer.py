@@ -21,6 +21,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
+print(len(dataset))
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 model = PerceiverIO(128, 
@@ -29,7 +30,7 @@ model = PerceiverIO(128,
                     512).to(device)
 loss_fn = LossFunction(1, 1,
                        1,device).to(device)
-optimizer = Adam(model.parameters(), lr=0.001)
+optimizer = Adam(model.parameters(), lr=3e-4)
 
 model.train()
 for epoch in range(NUM_EPOCH):

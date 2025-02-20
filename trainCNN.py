@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torch.optim import Adam
 import os
+from torch.nn import CrossEntropyLoss
 
 transformer = transforms.Compose([
     transforms.Resize((256, 256)),
@@ -24,28 +25,21 @@ dataset = DatasetProcessor(BASE_PATH, transformer, device)
 trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 model = SE_CNN(3,64,
-                64, 8).to(device)
+                64, 625).to(device)
 
-loss_fn = LossFunction(1, 1,
-                       1,device).to(device)
+loss_fn = CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001)
 
 model.train()
 for epoch in range(NUM_EPOCH):
     i = 0
     cumalative_loss = 0
-    for idx,image, Y in trainLoader:
+    for image, Y in trainLoader:
         optimizer.zero_grad()
         
         output1 = model(image)
-        if (torch.isnan(output1).any()):
-            print(f"Output1 has nan values for images {idx}")
         
         loss = loss_fn(output1, Y)
-        if (torch.isnan(loss).any()):
-            print(f"Loss has nan values for images {idx}")
-            print(f"Output1: {output1}")
-            print(f"Y: {Y}")
         print(loss.item())
         loss.backward()
         optimizer.step()
