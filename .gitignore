@@ -183,3 +183,4 @@ Test*
 
 model_CNN.txt
 model_Transformer.txt
+*.canvas
