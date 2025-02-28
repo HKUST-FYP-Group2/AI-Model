@@ -159,10 +159,10 @@ class DatasetProcessor:
                 4: wind_speed >= 40 or rain_1h:>=2 or snow_1h:>=2
         """
 
-        coldhotval = (data[0] < 273 or data[5] > 0)*1 + (data[0] >= 273) + (data[0] >= 283) + (data[0] >= 298) + (data[0] >= 313)
-        drywetval = (data[4] == 0 and data[5] == 0)*1 + (data[4] > 0 or data[5] > 0) + (data[4] >= 30 or data[5] >= 2) + (data[4] >= 50 or data[5] >= 5) + (data[4] >= 70 or data[5] >= 10)
-        clearcloudyval = (data[2] == 0) + (data[2] > 0)*1 + (data[2] >= 10) + (data[2] >= 30) + (data[2] > 70)
-        calmstormyval = (data[1] >= 0) + (data[1] >= 2)*1 + (data[1] >= 12) + (data[1] >= 30 or data[4] >= 2 or data[5] >= 2) + (data[1] >= 40 or data[4] >= 2 or data[5] >= 2)
+        coldhotval = (data[0] < 273 or data[5] > 0)*1 + (data[0] >= 273) + (data[0] >= 283) + (data[0] >= 298) + (data[0] >= 313) - 1
+        drywetval = (data[4] == 0 and data[5] == 0)*1 + (data[4] > 0 or data[5] > 0) + (data[4] >= 30 or data[5] >= 2) + (data[4] >= 50 or data[5] >= 5) + (data[4] >= 70 or data[5] >= 10) - 1
+        clearcloudyval = (data[2] == 0) + (data[2] > 0)*1 + (data[2] >= 10) + (data[2] >= 30) + (data[2] > 70) - 1
+        calmstormyval = (data[1] >= 0) + (data[1] >= 2)*1 + (data[1] >= 12) + (data[1] >= 30 or data[4] >= 2 or data[5] >= 2) + (data[1] >= 40 or data[4] >= 2 or data[5] >= 2) -1
         
         return coldhotval + 5*drywetval + 25*clearcloudyval + 125*calmstormyval # penta-nary classification, turning a multi-label into a classificaiton problem
     
