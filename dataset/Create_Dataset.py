@@ -128,21 +128,35 @@ class DatasetProcessor:
     def __len__(self):
         return int(self.dataset.iloc[:,-1].sum())
     
+    def _calcHotCold(self, temp:float, snow:float):
+        if snow > 0:
+            return 0
+        return (temp >= 273)*1 + (temp >= 283)*1 + (temp >= 298)*1 + (temp >= 313)*1
+    
+    def _calcDryWet(self, rain:float, snow:float):
+        return (rain > 0 or snow > 0)*1 + (rain >= 30 or snow >= 2)*1 + (rain >= 50 or snow >= 5)*1 + (rain >= 70 or snow >= 10)*1
+    
+    def _calcClearCloudy(self, cloud:float):
+        return (cloud > 0)*1 + (cloud >= 10)*1 + (cloud >= 30)*1 + (cloud >= 70)*1
+    
+    def _calcCalmStormy(self, wind:float, rain:float, snow:float):
+        return (wind >= 0.556)*1 + (wind >= 3.333)*1 + (wind >= 8.333 or rain >= 30 or snow >= 2)*1 + (wind >= 11.111 or rain >= 50 or snow >= 5)*1
+    
     def __getTheClass(self, data):
         """
             I will have temperature, humidity, wind_speed, cloud_cover, visibility, gust, rain_1h, snow_1h
             need to use this information to classify it 5 levels for each category of cold-hot, dry-wet, calm-stormy, clear-cloudy
             
             cold-hot: 
-                0: temperature < 0 or snow_1h > 0
-                1: temperature >= 0
-                2: temperature >= 10
-                3: temperature >= 25
-                4: temperature >= 40
+                0: temperature < 273 or snow_1h > 0
+                1: temperature >= 273
+                2: temperature >= 283
+                3: temperature >= 298
+                4: temperature >= 313
             dry-wet:
                 0: rain_1h == 0 and snow_1h == 0
                 1: rain_1h > 0 or snow_1h > 0
-                2: rain >= 30 or snow_1h >= 2
+                2: rain_1h >= 30 or snow_1h >= 2
                 3: rain_1h >= 50 or snow_1h >= 5
                 4: rain_1h >= 70 or snow_1h >= 10
             clear-cloudy:
@@ -152,17 +166,17 @@ class DatasetProcessor:
                 3: cloud_cover >= 30
                 4: cloud_cover > 70
             calm-stormy:
-                0: wind_speed >= 0
-                1: wind_speed >= 2
-                2: wind_speed >= 12
-                3: wind_speed >= 30 or rain_1h:>=2 or snow_1h:>=2
-                4: wind_speed >= 40 or rain_1h:>=2 or snow_1h:>=2
+                0: wind_speed < 0.556
+                1: wind_speed >= 0.556
+                2: wind_speed >= 3.333
+                3: wind_speed >= 8.33333 or rain_1h:>=30 or snow_1h:>=2
+                4: wind_speed >= 11.111 or rain_1h:>=50 or snow_1h:>=5
         """
 
-        coldhotval = (data[0] < 273 or data[5] > 0)*1 + (data[0] >= 273) + (data[0] >= 283) + (data[0] >= 298) + (data[0] >= 313) - 1
-        drywetval = (data[4] == 0 and data[5] == 0)*1 + (data[4] > 0 or data[5] > 0) + (data[4] >= 30 or data[5] >= 2) + (data[4] >= 50 or data[5] >= 5) + (data[4] >= 70 or data[5] >= 10) - 1
-        clearcloudyval = (data[2] == 0) + (data[2] > 0)*1 + (data[2] >= 10) + (data[2] >= 30) + (data[2] > 70) - 1
-        calmstormyval = (data[1] >= 0) + (data[1] >= 2)*1 + (data[1] >= 12) + (data[1] >= 30 or data[4] >= 2 or data[5] >= 2) + (data[1] >= 40 or data[4] >= 2 or data[5] >= 2) -1
+        coldhotval = self._calcHotCold(data[0], data[5])
+        drywetval = self._calcDryWet(data[4], data[5])
+        clearcloudyval = self._calcClearCloudy(data[2])
+        calmstormyval = self._calcCalmStormy(data[1], data[4], data[5])
         
         return coldhotval + 5*drywetval + 25*clearcloudyval + 125*calmstormyval # penta-nary classification, turning a multi-label into a classificaiton problem
     
