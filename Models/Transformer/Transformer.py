@@ -20,7 +20,7 @@ class PerceiverIO(nn.Module):
         ])
 
         self.decoder = DecodeBlock(embedding_dim, num_heads, 
-                                   1)
+                                   625)
         
     def outputConvert(self, x):
         transposedX = x.permute(0, 2, 1)
