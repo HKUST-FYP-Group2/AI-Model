@@ -10,7 +10,9 @@ class DecodeBlock(nn.Module):
             nn.GELU(),
             nn.Linear(embedding_dim, output_embedding_dim)
         )
+        
+        self.norm1 = nn.LayerNorm(embedding_dim)
     
     def forward(self, x, latentArray):
         x, _ = self.decode_attn(x, latentArray, latentArray)
-        return self.decoder(x)
+        return self.decoder(self.norm1(x))

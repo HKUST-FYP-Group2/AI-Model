@@ -4,13 +4,31 @@ from .Transformer_Blocks.Process_Blocks import ProcessAttentionBlock
 from .Transformer_Blocks.Decode_Blocks import DecodeBlock
         
 
+class OutputConverter(nn.Module):
+    def __init__(self, embedding_dim, input_feature_dim, num_classes):
+        super(OutputConverter, self).__init__()
+        self.model = nn.Sequential(
+            nn.Linear(embedding_dim*input_feature_dim, num_classes),
+            nn.Linear(num_classes, num_classes*embedding_dim)
+        )
+        self.num_classes = num_classes
+        self.embedding_dim = embedding_dim
+    
+    def forward(self, x):
+        flattenedX = x.flatten(1)
+        output = self.model(flattenedX)
+        return output.view(-1, self.num_classes, self.embedding_dim)
+
 class PerceiverIO(nn.Module):
-    def __init__(self, embedding_dim, input_feature_dim ,ouput_feature_dim, num_layers, num_heads, mlp_dim):
+    def __init__(self,embedding_dim, 
+                 input_feature_dim ,num_classes, 
+                 num_layers, num_heads, 
+                 mlp_dim):
         super(PerceiverIO, self).__init__()
         self.image_embedder = PatchEmbedding(3, 16, embedding_dim)
 
         self.latentFeatures = nn.Linear(embedding_dim, embedding_dim)
-        self.outputFeatures = nn.Linear(input_feature_dim, ouput_feature_dim)
+        self.outputFeatures = OutputConverter(embedding_dim, input_feature_dim, num_classes)
         
         self.encoder = nn.MultiheadAttention(embedding_dim, num_heads, batch_first=True)
         
@@ -20,12 +38,7 @@ class PerceiverIO(nn.Module):
         ])
 
         self.decoder = DecodeBlock(embedding_dim, num_heads, 
-                                   625)
-        
-    def outputConvert(self, x):
-        transposedX = x.permute(0, 2, 1)
-        output = self.outputFeatures(transposedX)
-        return output.permute(0, 2, 1)
+                                   1)
         
 
     def forward(self, img):
@@ -36,7 +49,7 @@ class PerceiverIO(nn.Module):
         latentArrays,_ = self.encoder(latentArray, img_embedding, img_embedding)
         beforeDecode = self.encoder_blocks(latentArrays)
         
-        outputArray = self.outputConvert(img_embedding)
+        outputArray = self.outputFeatures(beforeDecode)
         
         decodedOutput = self.decoder(outputArray, beforeDecode)
         decodedOutput = decodedOutput.squeeze(2)

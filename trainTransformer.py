@@ -7,6 +7,7 @@ from torchvision import transforms
 from torch.optim import Adam
 import os
 from torch.nn import CrossEntropyLoss
+from torch.optim.lr_scheduler import StepLR
 
 transformer = transforms.Compose([
     transforms.Resize((256, 256)),
@@ -23,14 +24,16 @@ print(device)
 
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
 print(len(dataset))
-trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
+trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-model = PerceiverIO(128, 
+model = PerceiverIO(256, 
                     256, 
                     625, 32, 16,
                     512).to(device)
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=3e-4)
+
+scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
 
 model.train()
 for epoch in range(NUM_EPOCH):
@@ -38,8 +41,10 @@ for epoch in range(NUM_EPOCH):
     cumalative_loss = 0
     for image, Y in trainLoader:
         optimizer.zero_grad()
+        
         output1 = model(image)
         loss = loss_fn(output1, Y)
+        
         print(loss.item())
         loss.backward()
         optimizer.step()
@@ -47,7 +52,8 @@ for epoch in range(NUM_EPOCH):
         i+= 1
         cumalative_loss += loss.item()
         print(f"batches done for epoch {epoch+1}: {i}/{len(trainLoader)}")
-        
+    
+    scheduler.step()
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
     if (epoch+1) % 4 == 0:
