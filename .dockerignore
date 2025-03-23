@@ -89,3 +89,14 @@ venv/
 .vscode/
 
 *.canvas
+
+.github/*
+Adapters/*
+Dataset/*
+Logger/*
+tests/*
+TrainedWeights/*
+
+train*
+
+*.csv

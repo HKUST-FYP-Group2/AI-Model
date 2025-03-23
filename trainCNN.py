@@ -1,5 +1,5 @@
 from Models import SE_CNN, LossFunction
-from dataset import DatasetProcessor
+from Dataset import DatasetProcessor
 
 import torch
 from torch.utils.data import DataLoader

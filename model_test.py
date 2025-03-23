@@ -3,7 +3,7 @@ from torchvision import transforms
 from Models import SE_CNN
 import os
 from PIL import Image
-from dataset import DatasetProcessor
+from Dataset import DatasetProcessor
 from torch.utils.data import DataLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -15,12 +15,11 @@ transformer = transforms.Compose([
     transforms.Lambda(lambda x: x.to(device))
 ])
 
-weights = torch.load("TrainedWeights/CNN_v1.pth",weights_only=True)
-model = SE_CNN(3,128,
-                128, 8).to(device)
+weights = torch.load("TrainedWeights/CNN/44.pth",weights_only=True)
+model = SE_CNN(3,64,
+                64, 625).to(device)
 model.load_state_dict(weights)
 
-featuresNames = ["temperature", "humidity", "wind_speed", "cloud_cover", "visibility", "gust", "rain_1h", "snow_1h"]
 
 BASE_PATH = os.path.dirname(__file__) + "/dataset"
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
