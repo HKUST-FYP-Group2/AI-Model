@@ -3,7 +3,7 @@ from flask_cors import CORS
 import dotenv
 import os
 import base64
-import PIL
+from PIL import Image
 from functools import wraps
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -48,11 +48,17 @@ def verify_input(f):
 @app.route('/classify_images', methods=['GET'])
 @verify_input
 def classify_images(num_images:int, images:dict):
+    
+    
     decoded_image_dict = {}
     for image_name, image_encoded in images.items():
         image_data = base64.b64decode(image_encoded)
-        image = PIL.Image.open(io.BytesIO(image_data))
+        image = Image.open(io.BytesIO(image_data))
         decoded_image_dict[image_name] = image
+        
+    with open("test.jpg", "wb") as f:
+        f.write(image_data)
+    return None,200
     
     classifications = classify_image(decoded_image_dict.values())
     formatted_response = {}
@@ -65,3 +71,6 @@ def classify_images(num_images:int, images:dict):
         }
     
     return jsonify(formatted_response), 200
+
+if __name__ == '__main__':
+    app.run(port=8080)

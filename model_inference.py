@@ -13,7 +13,7 @@ transformer = transforms.Compose([
 
 model = SE_CNN(3,64,
                 64, 625).to(device)
-model.load_state_dict(torch.load("TrainedWeights/CNN/44.pth"))
+model.load_state_dict(torch.load("/home/hvgupta/FYP/AI-Model/deployedModel.pth"))
 model.eval()
 
 def decimal_to_pentanary(decimal_number):
