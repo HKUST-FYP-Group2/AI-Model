@@ -35,12 +35,13 @@ def classify_image(images):
         image = transformer(image).unsqueeze(0)
         images_tensor.append(image)
     images_tensor = torch.cat(images_tensor, dim=0)
+    print(images_tensor.shape)
     with torch.no_grad():
-        outputs = model(images_tensor)
-    
+        outputs = torch.argmax(model(images_tensor),dim=1)
+    print(outputs)
     converted_outputs = []
     for output in outputs:
-        converted_outputs.append(decimal_to_pentanary(output.item()))
+        converted_outputs.append(decimal_to_pentanary(int(output.item())))
     
     return converted_outputs
     

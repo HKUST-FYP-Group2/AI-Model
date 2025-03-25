@@ -131,7 +131,7 @@ class DatasetProcessor:
     def _calcHotCold(self, temp:float, snow:float):
         if snow > 0:
             return 0
-        return (temp >= 273)*1 + (temp >= 283)*1 + (temp >= 298)*1 + (temp >= 313)*1
+        return (temp >= 0)*1 + (temp >= 10)*1 + (temp >= 25)*1 + (temp >= 35)*1
     
     def _calcDryWet(self, rain:float, snow:float):
         return (rain > 0 or snow > 0)*1 + (rain >= 30 or snow >= 2)*1 + (rain >= 50 or snow >= 5)*1 + (rain >= 70 or snow >= 10)*1
@@ -148,11 +148,11 @@ class DatasetProcessor:
             need to use this information to classify it 5 levels for each category of cold-hot, dry-wet, calm-stormy, clear-cloudy
             
             cold-hot: 
-                0: temperature < 273 or snow_1h > 0
-                1: temperature >= 273
-                2: temperature >= 283
-                3: temperature >= 298
-                4: temperature >= 313
+                0: temperature < 0 or snow_1h > 0
+                1: temperature >= 10
+                2: temperature >= 20
+                3: temperature >= 25
+                4: temperature >= 35
             dry-wet:
                 0: rain_1h == 0 and snow_1h == 0
                 1: rain_1h > 0 or snow_1h > 0
