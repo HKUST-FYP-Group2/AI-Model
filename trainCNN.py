@@ -22,7 +22,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 dataset = DatasetProcessor(BASE_PATH, transformer, device)
-trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
+trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
 model = SE_CNN(3,64,
                 64, 625).to(device)
@@ -52,5 +52,5 @@ for epoch in range(NUM_EPOCH):
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
     if (epoch+1) % 4 == 0:
-        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}.pth"
+        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_1.pth"
         torch.save(model.state_dict(), savePath)
