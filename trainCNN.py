@@ -15,7 +15,7 @@ transformer = transforms.Compose([
 ])
 
 NUM_EPOCH = 44
-BASE_PATH = os.path.dirname(__file__) + "/dataset"
+BASE_PATH = os.path.dirname(__file__) + "/Dataset"
 print(BASE_PATH)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,6 +26,7 @@ trainLoader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 model = SE_CNN(3,64,
                 64, 625).to(device)
+model.load_state_dict(torch.load(os.path.dirname(__file__) + "/TrainedWeights/CNN/40.pth"))
 
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001)
