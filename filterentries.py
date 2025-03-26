@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 current_directory = os.path.dirname(__file__)
-current_csv = pd.read_csv(current_directory+"/../dataset.csv")
+current_csv = pd.read_csv(current_directory+"/Dataset/dataset.csv")
 all_ids = current_csv["id"].values
 all_folders = os.listdir(current_directory+"/Dataset/images")
 
