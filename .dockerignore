@@ -92,8 +92,6 @@ venv/
 
 .github/*
 Adapters/*
-Dataset/*
-Logger/*
 tests/*
 TrainedWeights/*
 

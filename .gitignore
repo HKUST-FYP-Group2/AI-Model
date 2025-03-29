@@ -186,3 +186,5 @@ model_Transformer.txt
 *.canvas
 
 *.pth
+*.pt
+*.onnx

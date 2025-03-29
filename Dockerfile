@@ -19,7 +19,7 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 
 # Expose any ports if needed (example: 5000)
-EXPOSE 8000
+EXPOSE 8080
 
 # Command to run your application (example: python main.py)
 CMD ["python", "app.py"]

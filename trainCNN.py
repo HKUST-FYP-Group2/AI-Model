@@ -1,4 +1,4 @@
-from Models import SE_CNN, LossFunction
+from Models import SE_CNN
 from Dataset import DatasetProcessor
 
 import torch
@@ -14,7 +14,7 @@ transformer = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-NUM_EPOCH = 44
+NUM_EPOCH = 24
 BASE_PATH = os.path.dirname(__file__) + "/Dataset"
 print(BASE_PATH)
 
@@ -52,5 +52,5 @@ for epoch in range(NUM_EPOCH):
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
     if (epoch+1) % 4 == 0:
-        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_1.pth"
+        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_2.pth"
         torch.save(model.state_dict(), savePath)
