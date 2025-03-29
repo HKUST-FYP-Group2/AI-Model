@@ -73,7 +73,7 @@ def classify_images():
     for image in image_batch:
         image = np.expand_dims(image, axis=0)  # Add batch dimension
         output = session.run(None, {"input": image})
-        print(len(output), len(output[0]), output[0].shape)
+
         output = np.argmax(output[0], axis=1)
         converted_outputs.append(decimal_to_pentanary(int(output.item())))
     
