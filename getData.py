@@ -6,7 +6,7 @@ BASE_PATH = os.path.dirname(__file__)
 
 def createDataset():
     dotenv.load_dotenv()
-    Manager = CreateDataset(basePath=BASE_PATH,outputPath="dataset",dist_range=5,limit=5,units="metric") # more safe
+    Manager = CreateDataset(basePath=BASE_PATH,outputPath="Dataset",dist_range=5,limit=5,units="metric") # more safe
     Manager.downloadDataset(os.getenv("OPENWEATHER_API_KEY"),
                             os.getenv("WINDY_WEBCAM_API_KEY"))
 
