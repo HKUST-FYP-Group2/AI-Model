@@ -2,39 +2,40 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import dotenv
 import os
-import base64
+import numpy as np
+import onnxruntime as ort
 from PIL import Image
 from functools import wraps
-from pydantic import BaseModel, Field, field_validator, model_validator
-
-import io
-
-from model_inference import classify_image
+from torchvision import transforms
 
 dotenv.load_dotenv(override=True)
+
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")  # Change this to a random secret key
 
 CORS(app)
 
-class CLASSIFYIMAGES_SCHEMA(BaseModel):
-    num_images: int = Field(gt=0)
-    images: dict = Field(default_factory=dict, min_items=1)
+# Load ONNX Model
+session = ort.InferenceSession("./deployedModel.onnx")
 
-    @field_validator('images')
-    def check_images(cls, value):
-        if not isinstance(value, dict):
-            raise ValueError("Images must be a dictionary")
-        for image in value.values():
-            if not isinstance(image, str):
-                raise ValueError('Each image must be a base64 string')
-        return value
+# Define the image transformer
+transformer = transforms.Compose([
+    transforms.Resize((256, 256)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+])
 
-    @model_validator(mode="after")
-    def check_num_images(cls, values):
-        if len(values.images) != values.num_images:
-            raise ValueError('Number of images does not match')
-        return values
+def decimal_to_pentanary(decimal_number):
+    if decimal_number == 0:
+        return "0"
+    
+    pentanary_number = ""
+    while decimal_number > 0:
+        remainder = decimal_number % 5
+        pentanary_number = str(remainder) + pentanary_number
+        decimal_number //= 5
+    
+    return pentanary_number
 
 def verify_input(f):
     @wraps(f)
@@ -42,44 +43,51 @@ def verify_input(f):
         api_key = request.headers.get("Api-Key")
         if not api_key or api_key != os.getenv("VALID_API_KEY"):
             return jsonify({"error": "Unauthorized"}), 401
-        try:
-            data = CLASSIFYIMAGES_SCHEMA.model_validate(request.json)
-            return f(data.num_images, data.images)
-        except Exception as e:
-            return jsonify({"error": str(e)}), 400
-
+        return f(*args, **kwargs)
+    
     return decorated_function
-
 
 @app.route("/classify_images", methods=["POST"])
 @verify_input
-def classify_images(num_images: int, images: dict):
-    decoded_image_dict = {}
+def classify_images():
+    if "files" not in request.files:
+        return jsonify({"error": "No files uploaded"}), 400
 
-    for image_name, image_encoded in images.items():
+    files = request.files.getlist("files")  # Get multiple files
+    decoded_images = {}
+
+    for file in files:
         try:
-            image_data = base64.b64decode(image_encoded)
-            image = Image.open(io.BytesIO(image_data))
-            decoded_image_dict[image_name] = image
+            image = Image.open(file.stream).convert("RGB")
+            image = transformer(image)
+            decoded_images[file.filename] = image
         except Exception as e:
-            return jsonify({"error": f"Invalid image {image_name}: {str(e)}"}), 400
+            return jsonify({"error": f"Invalid image {file.filename}: {str(e)}"}), 400
+
+    # Convert images to NumPy batch array
+    image_batch = np.stack([img.numpy() for img in decoded_images.values()]).astype(np.float32)
+    print(image_batch.shape)
+    # Run ONNX inference
     
-    for image_name, image in decoded_image_dict.items():
-        with open(f"{image_name}.jpg", "wb") as image_file:
-            image.save(image_file, format="JPEG")
+    converted_outputs = []
+    for image in image_batch:
+        image = np.expand_dims(image, axis=0)  # Add batch dimension
+        output = session.run(None, {"input": image})
+        print(len(output), len(output[0]), output[0].shape)
+        output = np.argmax(output[0], axis=1)
+        converted_outputs.append(decimal_to_pentanary(int(output.item())))
     
-    classifications = classify_image(decoded_image_dict.values())
-    print(classifications)
+    # Process results
     formatted_response = {}
-    for image_name, classification in zip(decoded_image_dict.keys(), classifications):
+    for image_name, classification in zip(decoded_images.keys(), converted_outputs):
         formatted_response[image_name] = {
-            "calm-stormy": classification[0],
-            "clear-cloudy": classification[1],
-            "dry-wet": classification[2],
-            "cold-hot": classification[3]
+            "calm-stormy": float(classification[0]),
+            "clear-cloudy": float(classification[1]),
+            "dry-wet": float(classification[2]),
+            "cold-hot": float(classification[3])
         }
-    
+
     return jsonify(formatted_response), 200
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    app.run(host="0.0.0.0", port=8080)
