@@ -189,3 +189,5 @@ model_Transformer.txt
 *.pt
 *.onnx
 *.ipynb
+
+wjybuqi/*

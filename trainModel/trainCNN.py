@@ -26,7 +26,7 @@ trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
 model = SE_CNN(3,64,
                 64, 625).to(device)
-model.load_state_dict(torch.load(os.path.dirname(__file__) + "/TrainedWeights/CNN/40.pth"))
+model.load_state_dict(torch.load(os.path.dirname(__file__) + "/TrainedWeights/CNN/40_2.pth"))
 
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001)
@@ -52,5 +52,5 @@ for epoch in range(NUM_EPOCH):
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
     if (epoch+1) % 4 == 0:
-        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_2.pth"
+        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_3.pth"
         torch.save(model.state_dict(), savePath)
