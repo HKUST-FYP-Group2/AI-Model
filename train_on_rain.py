@@ -2,31 +2,17 @@ import kagglehub
 import json
 import os
 import torch
-from torchvision import transforms
+
 from Models import SE_CNN
 from PIL import Image
 from torch.utils.data import DataLoader, TensorDataset
 from random import randint
 
-def decimal_to_pentanary(decimal_number):
-    if decimal_number == 0:
-        return "0"
-    
-    pentanary_number = ""
-    while decimal_number > 0:
-        remainder = decimal_number % 5
-        pentanary_number = str(remainder) + pentanary_number
-        decimal_number //= 5
-    
-    return pentanary_number
+from utils import decimal_to_pentanary
+from Models import image_transformer as transformer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-transformer = transforms.Compose([
-    transforms.Resize((256, 256)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-])
 # Download latest version
 path = kagglehub.dataset_download("wjybuqi/weathertime-classification-with-road-images")
 
@@ -71,8 +57,10 @@ class custom_loss(torch.nn.Module):
         # Custom loss calculation
         new_label = []
         for label in labels:
-            penatary_number = decimal_to_pentanary(label.item())
-            penatary_number[2] = str(randint(1, 4))
+            penatary_number: str = decimal_to_pentanary(label.item())
+            penatary_list = list(penatary_number)
+            penatary_list[2] = str(randint(1, 4))
+            penatary_number = ''.join(penatary_list)
             classification = int(penatary_number[0])*125 + int(penatary_number[1])*25 + int(penatary_number[2])*5 + int(penatary_number[3])
             new_label.append(classification)
         new_label = torch.tensor(new_label).to(device)
@@ -108,6 +96,9 @@ for epoch in range(epochs):
         epoch_loss += loss.item()
     
     print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss / len(dataloader):.4f}")
+    
+
+torch.save(model.state_dict(), os.path.dirname(__file__) + "/TrainedWeights/CNN/24_3.pth")
 
 
 

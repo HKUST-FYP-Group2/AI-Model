@@ -6,7 +6,9 @@ import numpy as np
 import onnxruntime as ort
 from PIL import Image
 from functools import wraps
-from torchvision import transforms
+
+from Models import image_transformer as transformer
+from utils import decimal_to_pentanary
 
 dotenv.load_dotenv(override=True)
 
@@ -17,25 +19,6 @@ CORS(app)
 
 # Load ONNX Model
 session = ort.InferenceSession("./deployedModel.onnx")
-
-# Define the image transformer
-transformer = transforms.Compose([
-    transforms.Resize((256, 256)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-])
-
-def decimal_to_pentanary(decimal_number):
-    if decimal_number == 0:
-        return "0"
-    
-    pentanary_number = ""
-    while decimal_number > 0:
-        remainder = decimal_number % 5
-        pentanary_number = str(remainder) + pentanary_number
-        decimal_number //= 5
-    
-    return pentanary_number
 
 def verify_input(f):
     @wraps(f)
