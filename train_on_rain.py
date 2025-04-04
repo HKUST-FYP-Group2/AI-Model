@@ -2,21 +2,20 @@ import kagglehub
 import json
 import os
 import torch
-
-from Models import SE_CNN
 from PIL import Image
 from torch.utils.data import DataLoader, TensorDataset
 from random import randint
 
+from Models import SE_CNN, image_transformer as transformer
 from utils import decimal_to_pentanary
-from Models import image_transformer as transformer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Download latest version
-path = kagglehub.dataset_download("wjybuqi/weathertime-classification-with-road-images")
+# parent_dir = os.path.dirname(__file__)
+# path = kagglehub.dataset_download("wjybuqi/weathertime-classification-with-road-images", parent_dir)
 
-BASE_DIR = "/home/hvgupta/.cache/kagglehub/datasets/wjybuqi/weathertime-classification-with-road-images/versions/2/train_dataset"
+BASE_DIR = "./train_dataset"
 with open(f"{BASE_DIR}/train.json") as f:
     data = json.load(f)
     
