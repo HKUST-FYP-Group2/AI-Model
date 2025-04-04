@@ -6,9 +6,10 @@ import numpy as np
 import onnxruntime as ort
 from PIL import Image
 from functools import wraps
+from random import choice
 
 from Models import image_transformer as transformer
-from utils import decimal_to_pentanary
+from utils import decimal_to_pentanary, Qwen_Communicator
 
 dotenv.load_dotenv(override=True)
 
@@ -19,6 +20,8 @@ CORS(app)
 
 # Load ONNX Model
 session = ort.InferenceSession("./deployedModel.onnx")
+
+qwen_communicator = Qwen_Communicator()
 
 def verify_input(f):
     @wraps(f)
@@ -46,6 +49,9 @@ def classify_images():
             decoded_images[file.filename] = image
         except Exception as e:
             return jsonify({"error": f"Invalid image {file.filename}: {str(e)}"}), 400
+    
+    random_image = choice(list(decoded_images.values()))
+    formatted_response = qwen_communicator.get_qwen_response(random_image)
 
     # Convert images to NumPy batch array
     image_batch = np.stack([img.numpy() for img in decoded_images.values()]).astype(np.float32)
@@ -61,9 +67,9 @@ def classify_images():
         converted_outputs.append(decimal_to_pentanary(int(output.item())))
     
     # Process results
-    formatted_response = {}
+    formatted_response["images"] = {}
     for image_name, classification in zip(decoded_images.keys(), converted_outputs):
-        formatted_response[image_name] = {
+        formatted_response["images"][image_name] = {
             "calm-stormy": float(classification[0]),
             "clear-cloudy": float(classification[1]),
             "dry-wet": float(classification[2]),
