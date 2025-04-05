@@ -12,11 +12,10 @@ from utils import decimal_to_pentanary
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Download latest version
-# parent_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(__file__)
 # path = kagglehub.dataset_download("wjybuqi/weathertime-classification-with-road-images", parent_dir)
 
-BASE_DIR = "./train_dataset"
-with open(f"{BASE_DIR}/train.json") as f:
+with open(f"{parent_dir}/train.json") as f:
     data = json.load(f)
     
 data = data["annotations"]
@@ -34,7 +33,7 @@ model.eval()
 all_images = []     
 classification = []
 for image in rainy_images_name:
-    src = f"{BASE_DIR}/train_images/{image}"
+    src = f"{parent_dir}/train_images/{image}"
     image_file = Image.open(src)
     image_file = transformer(image_file).to(device)
     model_classification = model(image_file.unsqueeze(0))
