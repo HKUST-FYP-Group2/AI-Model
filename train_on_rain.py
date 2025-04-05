@@ -98,7 +98,3 @@ for epoch in range(epochs):
     
 
 torch.save(model.state_dict(), os.path.dirname(__file__) + "/TrainedWeights/CNN/24_3.pth")
-
-
-
-    
