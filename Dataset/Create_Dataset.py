@@ -2,7 +2,7 @@ import csv
 import os
 from time import sleep
 from Logger.Logger import logger
-from Adapters import WeatherClient, WebCamClient, WeatherData
+from .Adapters import WeatherClient, WebCamClient, WeatherData
 
 class CreateDataset():
     def __init__(self, mode: str = "json", units: str = "standard", lang: str = "en",

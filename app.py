@@ -50,7 +50,8 @@ def classify_images():
         except Exception as e:
             return jsonify({"error": f"Invalid image {file.filename}: {str(e)}"}), 400
     
-    random_image = choice(list(decoded_images.values()))
+    random_image = choice(files).stream
+    print(random_image)
     formatted_response = qwen_communicator.get_qwen_response(random_image)
 
     # Convert images to NumPy batch array

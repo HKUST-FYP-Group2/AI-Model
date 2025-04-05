@@ -20,7 +20,7 @@ trainLoader = DataLoader(dataset, batch_size=64, shuffle=True)
 
 model = SE_CNN(3,64,
                 64, 625).to(device)
-model.load_state_dict(torch.load(os.path.dirname(__file__) + "/TrainedWeights/CNN/40_2.pth"))
+model.load_state_dict(torch.load(os.path.dirname(__file__) + "/TrainedWeights/CNN/24_3.pth"))
 
 loss_fn = CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001)

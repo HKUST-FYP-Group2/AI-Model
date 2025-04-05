@@ -26,36 +26,30 @@ class Qwen_Communicator:
             "messages": [
                 {
                     "role": "user",
-                    "temperature": 0.9,
-                    "content": [
+                    "content": """
+                    Analyse the image and assign 2 simple and specific English keywords along with the description of the image for the background music retrieval from Freesound.
+                    The keywords should be related to what a person might expect to if they actually were in the location of the image.
+                    Some of the areas which you can focus on are:
+                        1. Main objects producing sound (e.g., "rain", "fire")
+                        2. Environmental context (e.g., "forest", "city")
+                        3. Sound characteristics (e.g., "calm", "rhythmic")
+                        4. Meteorological elements (e.g., "storm", "windy")
+                    Make sure that the keywords returned can be used to get comforting background music but also realistic sounds based on the context of the image.
+                    
+                    The description should be a brief summary of what can be seen in the image and the tyep of mood it may give.
+                    
+                    The output should be in JSON format:
+                    {
+                        "keywords": ["keyword1", "keyword2"],
+                        "description": "A brief description of the image."
+                    }
+                    
+                    The output should be in the format given above and nothing else should be included
+                    """,
+                    "attachments": [
                         {
-                            "type": "text",
-                            "text": (
-                                """
-                                Analyse the image and assign 2 simple and specific English keywords along with the description of the image for the background music retrieval from Freesound.
-                                The keywords should be related to what a person might expect to if they actually were in the location of the image.
-                                
-                                Some of the areas which you can focus on are:
-                                    1. Main objects producing sound (e.g., "rain", "fire")
-                                    2. Environmental context (e.g., "forest", "city")
-                                    3. Sound characteristics (e.g., "calm", "rhythmic")
-                                    4. Meteorological elements (e.g., "storm", "windy")
-                                Make sure that the keywords returned can be used to get comforting background music but also realistic sounds based on the context of the image.
-                                
-                                The output should be in JSON format:
-                                {
-                                    "keywords": ["keyword1", "keyword2"],
-                                    "description": "A brief description of the image."
-                                }
-                                    
-                                """
-                            )
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64Image}"  # Replace `base64Image` with the actual base64 string
-                            }
+                            "type": "image",
+                            "content": f"data:image/jpeg;base64,{base64Image}"
                         }
                     ]
                 }
@@ -77,4 +71,4 @@ class Qwen_Communicator:
             }
         response = response.json()
         response = response["choices"][0]["message"]["content"]
-        return json_repair.load(response)
+        return json_repair.loads(response)
