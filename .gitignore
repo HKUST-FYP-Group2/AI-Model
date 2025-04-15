@@ -190,4 +190,4 @@ model_Transformer.txt
 *.onnx
 *.ipynb
 
-wjybuqi/*
+rainImages/

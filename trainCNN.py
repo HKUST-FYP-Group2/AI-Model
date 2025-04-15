@@ -1,4 +1,4 @@
-from Models import SE_CNN, image_transformer as transformer
+from Models import SE_CNN, image_transformer as transformer, CustomLoss
 from Dataset import DatasetProcessor
 
 import torch
@@ -22,19 +22,19 @@ model = SE_CNN(3,64,
                 64, 625).to(device)
 model.load_state_dict(torch.load(os.path.dirname(__file__) + "/TrainedWeights/CNN/24_3.pth"))
 
-loss_fn = CrossEntropyLoss()
+loss_fn = CustomLoss()
 optimizer = Adam(model.parameters(), lr=0.001)
 
 model.train()
 for epoch in range(NUM_EPOCH):
     i = 0
     cumalative_loss = 0
-    for image, Y in trainLoader:
+    for image, Y, class_type in trainLoader:
         optimizer.zero_grad()
         
         output1 = model(image)
         
-        loss = loss_fn(output1, Y)
+        loss = loss_fn(output1, Y, class_type)
         print(loss.item())
         loss.backward()
         optimizer.step()
@@ -46,5 +46,5 @@ for epoch in range(NUM_EPOCH):
     print(f"Loss for epoch {epoch+1}: {cumalative_loss/len(trainLoader)}")
     
     if (epoch+1) % 4 == 0:
-        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_3.pth"
+        savePath = os.path.dirname(__file__) + f"/TrainedWeights/CNN/{epoch+1}_4.pth"
         torch.save(model.state_dict(), savePath)

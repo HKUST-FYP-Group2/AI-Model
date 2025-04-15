@@ -11,6 +11,7 @@ class DatasetProcessor:
         self.dataset["num_images"].astype(int)
         self.transformer = transformer
         self.device = device
+        self.classification_types = {0: "rain", 1: "rime", 2: "snow"}
         self.__fixDataset()
     
     def __fixDataset(self):
@@ -83,7 +84,7 @@ class DatasetProcessor:
     def __getitem__(self, globalImageIdx):
         cityIdx, localImageIdx = self.__getAllIdx(globalImageIdx)
         row = self.dataset.iloc[cityIdx]
-        
+        classification_type = self.classification_types.get(int(row["id"]),"original")
         cityId = int(row["id"])
         Y = torch.tensor((
                                     row["temperature"], row["wind_speed"], 
@@ -92,10 +93,12 @@ class DatasetProcessor:
                                 ), 
             device=self.device)
         
+        
+        
         image_path = f"{self.root}/images/{cityId}/"
         choosenImage = os.listdir(image_path)[localImageIdx]
         image = Image.open(f"{image_path}{choosenImage}")
         image = self.transformer(image)
         
         image_tensor = image.to(self.device)
-        return image_tensor, self.__getTheClass(Y)
+        return image_tensor, self.__getTheClass(Y), classification_type
