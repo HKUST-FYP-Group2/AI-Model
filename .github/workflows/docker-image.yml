@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:train_model_image
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:unique_eather_train
           secrets: |
             OPENWEATHER_API_KEY=${{ secrets.OPENWEATHER_API_KEY }}
             WINDY_WEBCAM_API_KEY=${{ secrets.WINDY_WEBCAM_API_KEY }}
