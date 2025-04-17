@@ -116,7 +116,7 @@ class DatasetProcessor:
 
         image_path = f"{self.root}/images/{cityId}/"
         choosenImage = os.listdir(image_path)[localImageIdx]
-        image = Image.open(f"{image_path}{choosenImage}")
+        image = Image.open(f"{image_path}{choosenImage}").convert("RGB")
         image = self.transformer(image)
 
         image_tensor = image.to(self.device)
