@@ -23,6 +23,7 @@ session = ort.InferenceSession("./deployedModel.onnx")
 
 qwen_communicator = Qwen_Communicator()
 
+
 def verify_input(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -30,8 +31,9 @@ def verify_input(f):
         if not api_key or api_key != os.getenv("VALID_API_KEY"):
             return jsonify({"error": "Unauthorized"}), 401
         return f(*args, **kwargs)
-    
+
     return decorated_function
+
 
 @app.route("/classify_images", methods=["POST"])
 @verify_input
@@ -49,16 +51,16 @@ def classify_images():
             decoded_images[file.filename] = image
         except Exception as e:
             return jsonify({"error": f"Invalid image {file.filename}: {str(e)}"}), 400
-    
+
     random_image = choice(files).stream
-    print(random_image)
     formatted_response = qwen_communicator.get_qwen_response(random_image)
 
     # Convert images to NumPy batch array
-    image_batch = np.stack([img.numpy() for img in decoded_images.values()]).astype(np.float32)
-    print(image_batch.shape)
+    image_batch = np.stack([img.numpy() for img in decoded_images.values()]).astype(
+        np.float32
+    )
     # Run ONNX inference
-    
+
     converted_outputs = []
     for image in image_batch:
         image = np.expand_dims(image, axis=0)  # Add batch dimension
@@ -66,7 +68,7 @@ def classify_images():
 
         output = np.argmax(output[0], axis=1)
         converted_outputs.append(decimal_to_pentanary(int(output.item())))
-    
+
     # Process results
     formatted_response["images"] = {}
     for image_name, classification in zip(decoded_images.keys(), converted_outputs):
@@ -74,10 +76,11 @@ def classify_images():
             "calm-stormy": float(classification[0]),
             "clear-cloudy": float(classification[1]),
             "dry-wet": float(classification[2]),
-            "cold-hot": float(classification[3])
+            "cold-hot": float(classification[3]),
         }
 
     return jsonify(formatted_response), 200
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

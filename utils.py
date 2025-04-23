@@ -3,15 +3,17 @@ import requests
 import copy
 import json_repair
 
+
 def decimal_to_pentanary(decimal_number):
-    
+
     pentanary_number = ""
     for _ in range(4):
         remainder = decimal_number % 5
         pentanary_number = str(remainder) + pentanary_number
         decimal_number //= 5
-    
+
     return pentanary_number
+
 
 class Qwen_Communicator:
     def __init__(self):
@@ -37,38 +39,38 @@ class Qwen_Communicator:
                     Make sure that the keywords returned can be used to get comforting background music but also realistic sounds based on the context of the image.
                     
                     The description should be a brief summary of what can be seen in the image and the tyep of mood it may give.
+                    along with a single word to describe the weather of the image.
                     
                     The output should be in JSON format:
                     {
                         "keywords": ["keyword1", "keyword2"],
                         "description": "A brief description of the image."
+                        "weather_word": "A single word to describe the weather."
                     }
+    
                     
                     The output should be in the format given above and nothing else should be included
                     """,
                     "attachments": [
                         {
                             "type": "image",
-                            "content": f"data:image/jpeg;base64,{base64Image}"
+                            "content": f"data:image/jpeg;base64,{base64Image}",
                         }
-                    ]
+                    ],
                 }
             ],
-            "max_tokens": 300
+            "max_tokens": 300,
         }
 
         return data
-    
+
     def get_qwen_response(self, base64Image):
         payload = self.get_qwen_data_dict(base64Image)
         local_headers = copy.deepcopy(self.headers)
         local_headers["Authorization"] = os.getenv("QWEN_API_KEY")
         response = requests.post(self.url, headers=local_headers, json=payload)
         if response.status_code != 200:
-            return {
-                "keywords": ["", ""],
-                "description": ""
-            }
+            return {"keywords": ["", ""], "description": ""}
         response = response.json()
         response = response["choices"][0]["message"]["content"]
         return json_repair.loads(response)
