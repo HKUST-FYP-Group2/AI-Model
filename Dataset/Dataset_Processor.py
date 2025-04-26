@@ -18,6 +18,7 @@ class DatasetProcessor:
 
     def __fixDataset(self):
         self.dataset = self.dataset.dropna()
+        self.dataset["cumsum"] = self.dataset["num_images"].cumsum()
 
     @property
     def shape(self):
@@ -93,9 +94,23 @@ class DatasetProcessor:
         )  # penta-nary classification, turning a multi-label into a classificaiton problem
 
     def __getAllIdx(self, idx):
-        cumalativeSum = self.dataset.iloc[:, -1].cumsum() < idx
-        prevLimit = self.dataset[cumalativeSum].iloc[:, -1].sum()
-        return int(cumalativeSum.sum()), int(idx - prevLimit - 1)
+        # Find the row index where cumulative sum is just greater than idx
+        row_index = (self.dataset["cumsum"] <= idx).sum()
+        # Get the city ID for the corresponding row
+        city_id = self.dataset.loc[row_index, "id"]
+
+        # Calculate the previous cumulative sum (prev_count)
+        if row_index == 0:
+            prev_count = 0
+        else:
+            first_occurance_idx = self.dataset.index[
+                self.dataset.iloc[:, 0] == city_id
+            ][0]
+            prev_count = self.dataset.loc[first_occurance_idx - 1, "cumsum"]
+
+        # Calculate the relative index (idx - prev_count)
+        relative_idx = idx - prev_count
+        return int(city_id), int(relative_idx)
 
     def __getitem__(self, globalImageIdx):
         cityIdx, localImageIdx = self.__getAllIdx(globalImageIdx)
