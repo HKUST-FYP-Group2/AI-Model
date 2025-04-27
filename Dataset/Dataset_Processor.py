@@ -17,6 +17,7 @@ class DatasetProcessor:
 
     def __fixDataset(self):
         self.dataset = self.dataset.dropna()
+        self.dataset.reset_index(drop=True, inplace=True)  # I hate you pandas
         self.dataset["cumsum"] = self.dataset["num_images"].cumsum()
 
     @property
