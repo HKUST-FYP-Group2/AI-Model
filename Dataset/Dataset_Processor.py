@@ -106,10 +106,9 @@ class DatasetProcessor:
                 self.dataset.iloc[:, 0] == city_id
             ][0]
             prev_count = self.dataset.iloc[first_occurance_idx - 1, -1]
-
         # Calculate the relative index (idx - prev_count)
         relative_idx = idx - prev_count
-        return int(city_id), int(relative_idx)
+        return int(row_index), int(relative_idx)
 
     def __getitem__(self, globalImageIdx):
         cityIdx, localImageIdx = self.__getAllIdx(globalImageIdx)
