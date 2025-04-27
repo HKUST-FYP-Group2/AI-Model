@@ -96,7 +96,7 @@ class DatasetProcessor:
         # Find the row index where cumulative sum is just greater than idx
         row_index = (self.dataset["cumsum"] <= idx).sum()
         # Get the city ID for the corresponding row
-        city_id = self.dataset.loc[row_index, "id"]
+        city_id = self.dataset.iloc[row_index, 0]
 
         # Calculate the previous cumulative sum (prev_count)
         if row_index == 0:
@@ -105,7 +105,7 @@ class DatasetProcessor:
             first_occurance_idx = self.dataset.index[
                 self.dataset.iloc[:, 0] == city_id
             ][0]
-            prev_count = self.dataset.loc[first_occurance_idx - 1, "cumsum"]
+            prev_count = self.dataset.iloc[first_occurance_idx - 1, -1]
 
         # Calculate the relative index (idx - prev_count)
         relative_idx = idx - prev_count
