@@ -24,7 +24,7 @@ class DatasetProcessor:
         return self.dataset.shape
 
     def __len__(self):
-        return int(self.dataset.iloc[:, -1].sum())
+        return int(self.dataset.iloc[-1, -1])
 
     def _calcHotCold(self, temp: float, snow: float):
         if snow > 0:
