@@ -39,13 +39,11 @@ class Qwen_Communicator:
                     Make sure that the keywords returned can be used to get comforting background music but also realistic sounds based on the context of the image.
                     
                     The description should be a brief summary of what can be seen in the image and the tyep of mood it may give.
-                    along with a single word to describe the weather of the image.
                     
                     The output should be in JSON format:
                     {
                         "keywords": ["keyword1", "keyword2"],
                         "description": "A brief description of the image."
-                        "weather_word": "A single word to describe the weather."
                     }
     
                     

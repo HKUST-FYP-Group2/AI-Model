@@ -23,6 +23,37 @@ session = ort.InferenceSession("./deployedModel.onnx")
 
 qwen_communicator = Qwen_Communicator()
 
+weather_info = {
+    "cold-hot": {
+        0: "veryCold",
+        1: "cold",
+        2: "warm",
+        3: "hot",
+        4: "veryHot",
+    },
+    "dry-wet": {
+        0: "veryDry",
+        1: "dry",
+        2: "wet",
+        3: "veryWet",
+        4: "extremelyWet",
+    },
+    "clear-cloudy": {
+        0: "veryClear",
+        1: "clear",
+        2: "cloudy",
+        3: "veryCloudy",
+        4: "extremelyCloudy",
+    },
+    "calm-stormy": {
+        0: "veryCalm",
+        1: "calm",
+        2: "stormy",
+        3: "veryStormy",
+        4: "extremelyStormy",
+    },
+}
+
 
 def verify_input(f):
     @wraps(f)
@@ -78,6 +109,22 @@ def classify_images():
             "dry-wet": float(classification[2]),
             "cold-hot": float(classification[3]),
         }
+
+    random_image_classification = formatted_response["images"][
+        choice(list(formatted_response["images"].keys()))
+    ]
+    formatted_response["weather_word"] = "-".join(
+        [
+            weather_info["cold-hot"][int(random_image_classification["cold-hot"])],
+            weather_info["dry-wet"][int(random_image_classification["dry-wet"])],
+            weather_info["clear-cloudy"][
+                int(random_image_classification["clear-cloudy"])
+            ],
+            weather_info["calm-stormy"][
+                int(random_image_classification["calm-stormy"])
+            ],
+        ]
+    )
 
     return jsonify(formatted_response), 200
 
